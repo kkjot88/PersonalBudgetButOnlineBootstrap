@@ -47,8 +47,7 @@ body
 {
     background-color: #ffffff;
     color: #000000;
-    font-weight: bold;
-    box-shadow: none;
+    font-weight: bolder;
 }
 
 a
@@ -61,4 +60,40 @@ a:hover
 {
     color: #ffffff;
     font-weight: bold;
+}
+
+.h-90
+{
+    height: 90%;
+}
+
+.w-90
+{
+    width: 90%;
+}
+
+.checkbox-big
+{
+    min-width: 30px;
+    width: 30px;
+    min-height: 30px;
+    height: 30px;
+}
+
+.form-check-input
+{
+    background-color: #c0c0c0;
+    border-color: #c0c0c0;
+}
+
+.form-check-input:focus
+{
+    box-shadow: none;
+    border-color: #c0c0c0;
+}
+
+.form-check-input:checked
+{
+    background-color: #1a1c23;
+    border-color: #ffffff;
 }

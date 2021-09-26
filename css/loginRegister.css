@@ -29,7 +29,9 @@ h1
 
 .horizontal-line-80
 {
-    border-top: 1px solid #c0c0c0;
+    border-top: 1px solid #fff;
     border-bottom: 5px;
     width: 80%;
 }
+
+
