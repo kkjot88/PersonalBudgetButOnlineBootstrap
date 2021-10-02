@@ -1,0 +1,92 @@
+.sidebar-280px-lg
+{
+    background-color: #2b2d34;
+    width: 280px;
+}
+
+.nav-pills > li > a,
+.nav-pills > li > a:focus
+{
+    background-color: #c0c0c0 !important;
+    color: #1a1c23;
+    font-weight: bold;
+}
+
+.nav-pills > li > a:hover
+{
+    background-color: #ffffff !important;
+    color: #000000;
+}
+
+.nav-pills > li > a.active
+{    
+    background-color: #1a1c23 !important; 
+    border-radius: .25rem 0 0 .25rem;
+}
+
+.testbox
+{
+    background-color: red;
+    width: 280px;
+    height: 500px;
+}
+
+.navbar
+{
+    background-color: #2b2d34;
+}
+
+.custom-toggler.navbar-toggler
+{
+    border-color: #c0c0c0;
+    background-color: #1a1c23;
+}
+
+.navbar-toggler:focus
+{
+    box-shadow: 0 0 0 1px #ffffff;    
+}
+  
+.custom-toggler .navbar-toggler-icon {    
+    background-image: url(
+        "data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(192, 192, 192, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E"
+        );
+}
+
+nav .navbar-nav li.nav-item a
+{
+    color: #c0c0c0 !important;
+}
+
+.user-dropdown-container
+{
+    border-radius: 24px;
+}
+
+.btn-nav
+{
+    background-color: #2b2d34;
+    color: #c0c0c0; 
+
+    border: none;
+    border-radius: 8px;
+}
+
+.btn-nav:hover,
+.btn-nav:focus
+{
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: bolder;
+}
+
+.vr.vr-40px
+{
+    align-self: center;
+    height: 40px !important;
+}
+
+.flex-row-reverse.dropdown-toggle::after
+{
+    margin-right: 8px;
+}
