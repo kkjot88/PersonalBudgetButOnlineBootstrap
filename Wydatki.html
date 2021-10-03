@@ -42,12 +42,12 @@
                 <hr class="me-3">
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li>
-                        <a href="#" class="nav-link mb-2 active" aria-current="page">
+                        <a href="#" class="nav-link mb-2 me-2" aria-current="page">
                             Dodaj przychód
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="nav-link mb-2 me-2">
+                        <a href="#" class="nav-link mb-2 active">
                             Dodaj wydatek
                         </a>
                     </li>
@@ -170,8 +170,8 @@
 
         <form class="container d-flex flex-column 
         m-0 mx-auto m-lg-0
-        px-auto p-md-0 pe-md-5 pt-4 py-md-5">
-            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-3">
+        px-auto pt-4 p-md-0 pe-md-5 py-md-5">
+            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-1 pb-md-3">
                 <!-- md - xxl -->
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="amount" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Kwota:</label>
@@ -183,7 +183,7 @@
                     </div>
                 </div>                
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+            <div class="row justify-content-center justify-content-md-start pb-1 pb-md-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="date" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Data:</label>
                 </div>
@@ -191,7 +191,21 @@
                     <input type="text" class="form-control align-self-center" id="date" autocomplete="off">
                 </div>
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+            <div class="row justify-content-center justify-content-md-start pb-1 pb-md-3">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
+                    <label for="payment-category" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Sposób płatności:</label>
+                </div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <select class="form-select classic align-self-end" aria-label="Kategoria przychodu"
+                        id="payment-category">
+                        <option selected>Karta kredytowa</option>
+                        <option value="1">Gotówka</option>
+                        <option value="2">Karta debetowa</option>
+                        <option value="3">Inne</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row justify-content-center justify-content-md-start pb-1 pb-md-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="payment-category" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Wybierz
                         kategorię:</label>
@@ -206,7 +220,7 @@
                     </select>
                 </div>
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+            <div class="row justify-content-center justify-content-md-start pb-1 pb-3">
                 <div class="col-10 col-md-5 d-flex col-lg-4 col-xl-3 p-0 pe-2">
                     <label for="comment" class="align-self-start m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Komentarz:</label>
                 </div>
@@ -214,7 +228,7 @@
                     <textarea class="form-control align-self-center" rows="5" id="comment"></textarea>
                 </div>
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+            <div class="row justify-content-center justify-content-md-start pb-1 pb-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <button type="submit" class="btn btn-primary shadow-none w-50 me-2">
