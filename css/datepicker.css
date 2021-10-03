@@ -1,0 +1,49 @@
+.datepicker thead th.prev:hover,
+.datepicker thead th.next:hover,
+.datepicker thead th.datepicker-switch:hover {
+    background-color: #c0c0c0;
+    color: #1a1c23 ;
+}
+
+.datepicker .dow {
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
+.datepicker .active.decade,
+.datepicker .active.year,
+.datepicker .today.active.day,
+.datepicker .active.day {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+.datepicker .today.day {
+    background-color: #1a1c23 !important;
+    color: #ffffff !important;
+}
+
+.datepicker .century.focused:hover,
+.datepicker .decade.focused:hover,
+.datepicker .month.focused:hover,
+.datepicker .year.focused:hover,
+.datepicker .active.year:hover,
+.datepicker .active.day:hover {
+    background-color: red !important;
+}
+
+.datepicker .century:hover,
+.datepicker .decade:hover,
+.datepicker .year:hover,
+.datepicker .month:hover,
+.datepicker .day:hover {
+    background-color: #c0c0c0 !important;
+    color: #1a1c23 !important;
+}
+
+.datepicker .century.focused,
+.datepicker .month.focused,
+.datepicker .year.focused {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}

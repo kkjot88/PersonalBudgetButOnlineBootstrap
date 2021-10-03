@@ -10,3 +10,8 @@ label {
   text-align: right;
   height: max-content;
 }
+
+.p-calendar {
+  padding-right: 6px;
+  padding-left: 6px;
+}
