@@ -12,25 +12,27 @@
     <meta name="keywords"
         content="finanse, budzet, budżet, rachunki, rachunkowość, pieniądze, bilans, wydatki, wydatek, dochodzy, przychody" />
 
-    
+    <!-- jquery -->
+    <script src="js/jquery/jquery.min.js"></script>
 
     <!-- bootstrap 5 -->
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
+
+    <script src="js/cleave/cleave.min.js"></script>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="css/nav.css">
-
-
+    <link rel="stylesheet" href="css/income-expense.css">
 
 </head>
 
 <body>
 
-    <main class="container p-0 pt-5 mt-2 mt-md-2 p-lg-0 m-lg-0 d-flex flex-column flex-lg-row min-vh-100 mw-100">
+    <main class="container p-0 pt-5 mt-0 p-lg-0 m-lg-0 d-lg-flex flex-column flex-lg-row min-vh-100 mw-100">
         <nav class="d-flex">
             <!-- sidebar from lg up -->
             <div class="sidebar-280px-lg d-none d-lg-flex flex-column p-3 pe-0 vh-100 sticky-top">
@@ -39,7 +41,7 @@
                 </div>
                 <hr class="me-3">
                 <ul class="nav nav-pills flex-column mb-auto">
-                    <li class="nav-item">
+                    <li>
                         <a href="#" class="nav-link mb-2 active" aria-current="page">
                             Dodaj przychód
                         </a>
@@ -56,8 +58,9 @@
                     </li>
                 </ul>
                 <hr class="me-3">
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center dropdown-toggle pe-2 me-3" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown dropup">
+                    <a href="#" class="d-flex align-items-center dropdown-toggle pe-2 me-3" id="dropdownUser1"
+                        data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle me-2">
                         <span class="me-auto">Default user</span>
                     </a>
@@ -72,7 +75,7 @@
                 </div>
             </div>
 
-            <!-- navbar up to lg -->
+            <!-- navbar sm to lg -->
             <div class="d-lg-none d-flex w-100">
 
                 <!-- sm with burger -->
@@ -82,14 +85,15 @@
                         <span class="text-white mb-2" href="#">Budżet osobisty</span>
 
                         <div class="mb-2">
-                            <button class="navbar-toggler custom-toggler pe-2 ps-2" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
+                            <button class="navbar-toggler custom-toggler pe-2 ps-2" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                                aria-controls="navbarSupportedContent" aria-expanded="false"
+                                aria-label="Toggle navigation">
                                 <span class="navbar-toggler-icon"></span>
                             </button>
-                        </div>                        
+                        </div>
 
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">                            
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <div class="btn-group flex-column w-100" role="group" aria-label="First group">
                                 <hr class="mt-0 mb-2"></a>
                                 <a href="#" type="button" class="btn btn-nav rounded-0 text-start">Dodaj wydatek</a>
@@ -97,7 +101,8 @@
                                 <a href="#" type="button" class="btn btn-nav rounded-0 text-start">Przeglądaj bilans</a>
                                 <hr class="mt-2 mb-2">
                                 <div class="d-flex mb-2 align-items-center">
-                                    <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle">
+                                    <img src="img/default-user.png" alt="" width="32" height="32"
+                                        class="rounded-circle">
                                     <span class="ms-2 me-auto">Default user</span>
                                     <a href="#" class="d-flex pe-3">
                                         <i class="material-icons fs-1">
@@ -124,12 +129,12 @@
                 <!-- md expanded -->
                 <div class="d-none d-md-flex d-lg-none navbar navbar-expand-md fixed-top p-0">
                     <div class="container-fluid">
-                                                  
+
                         <span class="text-white my-auto pe-2 me-1" href="#">Budżet osobisty</span>
-                        
+
                         <div class="vr vr-40px"></div>
 
-                        <div class="btn-group justify-self-left me-auto" role="group" aria-label="First group">                                
+                        <div class="btn-group justify-self-left me-auto" role="group" aria-label="First group">
                             <a href="#" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj wydatek</a>
                             <a href="#" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj wydatek</a>
                             <a href="#" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Przeglądaj bilans</a>
@@ -138,97 +143,111 @@
                         <div class="d-flex pe-2">
                             <div class="vr vr-40px "></div>
                         </div>
-                        
 
-                        <div class="dropdown d-flex me-2">
-                            <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse " id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false" >                                
-                                <span class="me-auto">Default user</span>
+
+                        <div class="dropdown d-flex">
+                            <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse "
+                                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle ms-2">
+                                <span class="me-auto">Default user</span>                                
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2" aria-labelledby="dropdownUser1">
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2"
+                                aria-labelledby="dropdownUser1">
                                 <li><a class="dropdown-item p-1" href="#">Ustawienia</a></li>
                                 <li><a class="dropdown-item p-1" href="#">Profil</a></li>
                                 <li>
                                     <hr class="dropdown-divider m-0 mt-2 mb-2">
                                 </li>
                                 <li><a class="dropdown-item p-1" href="#">Wyloguj się</a></li>
-                            </ul>                            
+                            </ul>
                         </div>
-                        <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle">
-
+                        
                     </div>
                 </div>
             </div>
         </nav>
         <!-- page content -->
-        <div class="col p-5">
 
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-
-            x <br>
-            x <br>
-            x <br>
-            x <br>
-            x
-
-            <ul class="navbar-nav me-auto mb-2">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-            </ul>
-
-        </div>
-
-
-
+        <form class="container d-flex flex-column 
+        m-0 mx-auto m-lg-0
+        px-auto p-md-0 pe-md-5 pt-4 py-md-5">
+            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-3">
+                <!-- md - xxl -->
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
+                    <label for="amount" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Kwota:</label>
+                </div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <div class="input-group">
+                        <input type="text" class="form-control align-self-center" id="amount" autocomplete="off">
+                        <span class="input-group-text">zł</span>
+                    </div>
+                </div>                
+            </div>
+            <div class="row justify-content-center justify-content-md-start pb-3">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
+                    <label for="date" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Data:</label>
+                </div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <input type="text" class="form-control align-self-center" id="date" autocomplete="off">
+                </div>
+            </div>
+            <div class="row justify-content-center justify-content-md-start pb-3">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
+                    <label for="payment-category" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Wybierz
+                        kategorię:</label>
+                </div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <select class="form-select classic align-self-end" aria-label="Kategoria przychodu"
+                        id="payment-category">
+                        <option selected>Wynagrodzenie</option>
+                        <option value="1">Odsetki bankowe</option>
+                        <option value="2">Sprzedaż na allegro</option>
+                        <option value="3">Inne</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row justify-content-center justify-content-md-start pb-3">
+                <div class="col-10 col-md-5 d-flex col-lg-4 col-xl-3 p-0 pe-2">
+                    <label for="comment" class="align-self-start m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Komentarz:</label>
+                </div>
+                <div class="col-10 col-md-6 col-lg-6 col-xl-5 d-flex p-0">
+                    <textarea class="form-control align-self-center" rows="5" id="comment"></textarea>
+                </div>
+            </div>
+            <div class="row justify-content-center justify-content-md-start pb-3">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <button type="submit" class="btn btn-primary shadow-none w-50 me-2">
+                        <strong>Dodaj</strong>
+                    </button>
+                    <button class="btn shadow-none btn-primary w-50">
+                        <strong>Anuluj</strong>
+                    </button>
+                </div>
+            </div>           
+        </form>
     </main>
 </body>
+
+<script>
+
+    $(function () {
+
+        var amountInputFormating = new Cleave('#amount', {
+            numeral: true,
+            delimiter: ' ',
+            numeralDecimalMark: ',',
+            numeralThousandsGroupStyle: 'thousand'
+        });
+
+        var dateInputFormating = new Cleave('#date', {
+            date: true,
+            delimiter: '.',
+            numeralDecimalMark: ',',
+            datePattern: ['d', 'm', 'Y']
+        });
+    });
+
+</script>
 
 </html>
