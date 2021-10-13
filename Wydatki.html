@@ -18,6 +18,9 @@
     <!-- bootstrap 5 -->
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap-datepicker3.min.css">
+    <script src="js/bootstrap/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap/bootstrap-datepicker.pl.min.js"></script>
 
     <script src="js/cleave/cleave.min.js"></script>
 
@@ -27,10 +30,28 @@
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="css/nav.css">
     <link rel="stylesheet" href="css/income-expense.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/datepicker.css">
 
 </head>
 
 <body>
+
+    <!-- Modal -->
+    <div class="modal fade" id="pick-date" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content w-max-content mx-auto">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Wybierz datę</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- bootstrap datepicker -->
+                </div>
+                <div class="modal-footer pt-3"></div>
+            </div>
+        </div>
+    </div>
 
     <nav>
         <!-- up to md (must be first) -->
@@ -99,7 +120,8 @@
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="First group">
                         <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active" aria-pressed="true">Dodaj
+                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
+                            aria-pressed="true">Dodaj
                             wydatek</a>
                         <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Przeglądaj
                             bilans</a>
@@ -110,13 +132,12 @@
                     </div>
 
                     <div class="dropdown d-flex">
-                        <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse "
-                            id="user-md" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse " id="user-md"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle ms-2">
                             <span class="me-auto">Default user</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2"
-                            aria-labelledby="user-md">
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2" aria-labelledby="user-md">
                             <li><a class="dropdown-item p-1" href="#">Ustawienia</a></li>
                             <li><a class="dropdown-item p-1" href="#">Profil</a></li>
                             <li>
@@ -192,11 +213,20 @@
             </div>
             <div class="row justify-content-center justify-content-md-start pb-1 pb-md-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
-                    <label for="date"
-                        class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Data:</label>
+                    <label for="date" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">
+                        Data:
+                    </label>
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
-                    <input type="text" class="form-control align-self-center" id="date" autocomplete="off">
+                    <div class="input-group">
+                        <input type="text" class="form-control align-self-center" id="date" autocomplete="off">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date"
+                            class="input-group-text p-0" id="datepicker-button">
+                            <i class="material-icons p-calendar">
+                                edit_calendar
+                            </i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row justify-content-center justify-content-md-start pb-1 pb-md-3">
@@ -258,6 +288,26 @@
 <script>
 
     $(function () {
+
+        var modal = new bootstrap.Modal($('#pick-date'));
+        var today = new Date().toLocaleDateString();
+
+        $('#date').val(today);
+
+        $('.modal-body').datepicker({
+            language: 'pl',
+            todayHighlight: 'true',
+            updateViewDate: 'false',
+        });
+
+        $('.modal-body').on('changeDate', () => {
+            $('#date').val($('.modal-body').datepicker('getFormattedDate'));
+            modal.hide();
+        });
+
+        $('#datepicker-button').on('click',
+            () => $('.modal-body').datepicker('update', $('#date').val())
+        );
 
         var amountInputFormating = new Cleave('#amount', {
             numeral: true,
