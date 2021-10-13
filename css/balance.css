@@ -1,0 +1,107 @@
+main {
+  visibility: hidden;
+}
+
+.w-108px {
+  width: 108px;
+}
+
+.table {
+  color: #c0c0c0 !important;
+}
+
+th[scope="col"] {
+  font-weight: normal;
+  color: #ffffff;
+}
+
+th {
+  border-bottom: none !important;
+}
+
+th:after,
+th:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+th:before {
+  top: -1px;
+  border-top: 3px solid #1a1c23;
+}
+
+th:after {
+  bottom: 1px;
+  border-bottom: 1px solid #c0c0c0;
+}
+
+tr {
+  border-top: 1px solid #2b2d34 !important;
+}
+
+tr:first-child {
+  border-top: none !important;
+}
+
+td {
+  border-bottom: none;
+}
+
+th,
+td {
+  background-color: #1a1c23 !important;
+}
+
+.table-hover tbody tr:hover td {
+  background-color: #c0c0c0 !important;
+  color: #1a1c23;
+}
+
+.table-bordered {
+  border: 1px solid #2b2d34;
+}
+
+#summary-table tbody tr td:first-child {
+  border-right: 1px solid #2b2d34;
+}
+
+#summary-table tbody tr td:last-child {
+  width: 1%;
+}
+
+.summary-border-bottom {
+  border-bottom: 1px solid #2b2d34;
+}
+
+.summary-border-top {
+  border-top: 1px solid #2b2d34;
+}
+
+.summary-border-start {
+  border-left: 1px solid #2b2d34;
+}
+
+#balance-message
+{
+  color: green;
+}
+
+#accordion-container{
+  min-height: 200px;
+}
+
+#chart-wrapper{
+  position: relative;
+  height: 0;
+  overflow:hidden;
+}
+
+#piechart-accordion {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width:100%;
+  height:100%;
+}

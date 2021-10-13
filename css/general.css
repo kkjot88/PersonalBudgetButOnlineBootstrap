@@ -89,6 +89,11 @@ a:hover {
   width: 90%;
 }
 
+.w-max-content
+{
+  width: max-content;
+}
+
 .checkbox-big {
   min-width: 30px;
   width: 30px;
@@ -117,4 +122,42 @@ a:hover {
 
 .bg-light {
   background-color: #c0c0c0 !important;
+}
+
+.accordion-item
+{
+  background-color: #1a1c23;
+}
+
+.accordion-button
+{
+  color: #c0c0c0;
+  background-color: #1a1c23;
+  border: 1px solid #c0c0c0;
+}
+
+.accordion-button:focus
+{
+  border-color: #c0c0c0;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #c0c0c0;
+    border-color: #c0c0c0;
+    color: #000000;
+}
+
+.accordion-button:not(.collapsed):after {
+  background-color: #c0c0c0;
+  border-color: #c0c0c0;
+  color: #000000;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000000'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
+}
+
+.accordion-button:after {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23c0c0c0'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
+}
+
+.accordion-body {
+    border: 1px solid #2b2d34;
 }
