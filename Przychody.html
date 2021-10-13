@@ -33,9 +33,7 @@
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/datepicker.css">
 
-
 </head>
-
 <body>
 
     <!-- Modal -->
@@ -47,11 +45,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
+                    <!-- bootstrap datepicker -->
                 </div>
-                <div class="modal-footer pt-3">
-                    
-                </div>
+                <div class="modal-footer pt-3"></div>
             </div>
         </div>
     </div>
@@ -295,9 +291,6 @@
         $('#datepicker-button').on('click',
             () => $('.modal-body').datepicker('update', $('#date').val())
         );
-
-        console.log(today);
-
 
         var amountInputFormating = new Cleave('#amount', {
             numeral: true,
