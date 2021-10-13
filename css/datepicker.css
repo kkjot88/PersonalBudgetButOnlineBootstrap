@@ -47,3 +47,39 @@
     background-color: #ffffff !important;
     color: #000000 !important;
 }
+
+.datepicker td.range.day {
+    background-color: #c0c0c0;
+    color: #1a1c23;
+}
+
+.datepicker td.range.day:hover {
+    background-color: green !important;
+    color: #000000;
+}
+
+.datepicker .selected.range-start.day,
+.datepicker .active.selected.range-start.day {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.datepicker .selected.range-end.day,
+.datepicker .active.selected.range-end.day {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.datepicker .selected.range-start.day:hover,
+.datepicker .selected.range-end.day:hover {
+    background-color: red !important;
+}
+
+.input-group > div {
+    border: 1px solid #c0c0c0;
+    border-radius: 8px !important;
+}
+
+.datepicker {
+    margin: 4px;
+}
