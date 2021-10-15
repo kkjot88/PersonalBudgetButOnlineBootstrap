@@ -33,25 +33,21 @@
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/datepicker.css">
 
-
 </head>
-
 <body>
 
     <!-- Modal -->
-    <div class="modal fade" id="pick-date" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="pick-date" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content w-max-content mx-auto">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Wybierz datę</h5>
+                <div class="modal-header py-2">
+                    <h5 class="modal-title" id="modalLabel">Wybierz datę</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
+                    <!-- bootstrap datepicker -->
                 </div>
-                <div class="modal-footer pt-3">
-                    
-                </div>
+                <div class="modal-footer pt-3"></div>
             </div>
         </div>
     </div>
@@ -64,7 +60,7 @@
             <div class="d-md-none navbar fixed-top pb-0">
                 <div class="container-fluid">
 
-                    <span class="text-white mb-2" href="#">Budżet osobisty</span>
+                    <span class="text-white mb-2">Budżet osobisty</span>
 
                     <div class="mb-2">
                         <button class="navbar-toggler custom-toggler pe-2 ps-2" type="button" data-bs-toggle="collapse"
@@ -76,7 +72,7 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
-                            <hr class="mt-0 mb-2"></a>
+                            <hr class="mt-0 mb-2">
                             <a href="Przychody.html" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start active" aria-pressed="true">Dodaj
                                 przychód</a>
@@ -116,7 +112,7 @@
             <div class="d-none d-md-flex d-lg-none navbar navbar-expand-md fixed-top p-0">
                 <div class="container-fluid">
 
-                    <span class="text-white my-auto pe-2 me-1" href="#">Budżet osobisty</span>
+                    <span class="text-white my-auto pe-2 me-1">Budżet osobisty</span>
 
                     <div class="vr vr-40px"></div>
 
@@ -234,13 +230,13 @@
             </div>
             <div class="row justify-content-center justify-content-md-start pb-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
-                    <label for="payment-category"
+                    <label for="income-category"
                         class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Wybierz
                         kategorię:</label>
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <select class="form-select classic align-self-end" aria-label="Kategoria przychodu"
-                        id="payment-category">
+                        id="income-category">
                         <option selected>Wynagrodzenie</option>
                         <option value="1">Odsetki bankowe</option>
                         <option value="2">Sprzedaż na allegro</option>
@@ -284,7 +280,6 @@
         $('.modal-body').datepicker({
             language: 'pl',
             todayHighlight: 'true',
-            updateViewDate: 'false',
         });
 
         $('.modal-body').on('changeDate', () => {
@@ -295,9 +290,6 @@
         $('#datepicker-button').on('click',
             () => $('.modal-body').datepicker('update', $('#date').val())
         );
-
-        console.log(today);
-
 
         var amountInputFormating = new Cleave('#amount', {
             numeral: true,

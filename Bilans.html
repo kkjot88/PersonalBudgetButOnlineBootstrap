@@ -9,7 +9,11 @@
     <title>Budżet osobisty</title>
 
     <meta name="description" content="Strona służąca do zapanowania nad swoim budżetem osobistym" />
-    <meta name="keywords" content="finanse, budzet, budżet, rachunki, rachunkowość, pieniądze, bilans, wydatki, wydatek, dochodzy, przychody"/>
+    <meta name="keywords"
+        content="finanse, budzet, budżet, rachunki, rachunkowość, pieniądze, bilans, wydatki, wydatek, dochodzy, przychody" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <!-- jquery -->
     <script src="js/jquery/jquery.min.js"></script>
@@ -17,19 +21,179 @@
     <!-- bootstrap 5 -->
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap-datepicker3.min.css">
+    <script src="js/bootstrap/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap/bootstrap-datepicker.pl.min.js"></script>
 
     <script src="js/cleave/cleave.min.js"></script>
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="css/nav.css">
     <link rel="stylesheet" href="css/balance.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/datepicker.css">
+
+    <script>
+
+        var todayDate = new Date();
+        var firstDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toLocaleDateString('pl');
+        var lastDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).toLocaleDateString('pl');
+        var firstDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1).toLocaleDateString('pl');
+        var lastDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0).toLocaleDateString('pl');
+        var firstDayOfCurrentYear = new Date(todayDate.getFullYear(), 0, 1).toLocaleDateString('pl');
+        var lastDayOfCurrentYear = new Date(todayDate.getFullYear() + 1, 0, 0).toLocaleDateString('pl');
+
+        $(function () {
+
+            /* this ONLY works because of change in bootstrap-datepicker.min.js file:
+
+            hasClass("input-daterange")||p.inputs?(a.extend(p,{inputs:p.inputs||b.find("div").toArray()})
+                        b.find("input") => b.find("div")
+
+            */
+            $('.input-daterange').datepicker({
+                language: 'pl',
+                todayHighlight: 'true',
+            });
+
+            var modal = new bootstrap.Modal($('#pick-date-period'));
+
+            $('#from').val(firstDayOfCurrentMonth);
+            $('#to').val(lastDayOfCurrentMonth);
+
+            $('#period').on('change', () => {
+                let selectedOption = $("option:selected", this).val();
+                switch (selectedOption) {
+                    case '0':
+                        disableDateinput("from");
+                        disableDateinput("to");
+                        $('#from').val(firstDayOfCurrentMonth);
+                        $('#to').val(lastDayOfCurrentMonth);
+                        $('#datepicker-from').datepicker('clearDates');
+                        $('#datepicker-to').datepicker('clearDates');
+                        $(".datepicker-button").addClass("d-none");
+                        break;
+                    case '1':
+                        disableDateinput("from");
+                        disableDateinput("to");
+                        $('#from').val(firstDayOfPreviousMonth);
+                        $('#to').val(lastDayOfPreviousMonth);
+                        $('#datepicker-from').datepicker('clearDates');
+                        $('#datepicker-to').datepicker('clearDates');
+                        $(".datepicker-button").addClass("d-none");
+                        break;
+                    case '2':
+                        disableDateinput("from");
+                        disableDateinput("to");
+                        $('#from').val(firstDayOfCurrentYear);
+                        $('#to').val(lastDayOfCurrentYear);
+                        $('#datepicker-from').datepicker('clearDates');
+                        $('#datepicker-to').datepicker('clearDates');
+                        $(".datepicker-button").addClass("d-none");
+                        break;
+                    case '3':
+                        enableDateInput("from");
+                        enableDateInput("to");
+                        $('#from').val("");
+                        $('#to').val("");
+                        $('.datepicker-button').removeClass('d-none');
+                        modal.show();
+                        break;
+                }
+            });
+
+            var finalStartDate;
+            var finalEndDate;
+
+            $('#datepicker-from *').on('click', () => {
+
+                //$("#from").val($("#datepicker-from").datepicker('getFormattedDate'));
+                finalStartDate = $("#datepicker-from").datepicker('getFormattedDate');
+                let startDate = finalStartDate;
+                let endDate = finalEndDate;
+
+                $("#label-from").text($("#datepicker-from").datepicker('getFormattedDate'));
+
+                if (startDate > endDate) {
+                    //$("#to").val($("#datepicker-from").datepicker('getFormattedDate'));
+                    finalEndDate = $("#datepicker-from").datepicker('getFormattedDate');
+                    $("#label-to").text($("#datepicker-from").datepicker('getFormattedDate'));
+                }
+            });
+
+            $('#datepicker-to *').on('click', () => {
+
+                //$("#to").val($("#datepicker-to").datepicker('getFormattedDate'));
+                finalEndDate = $("#datepicker-to").datepicker('getFormattedDate');
+                let startDate = finalStartDate;
+                let endDate = finalEndDate;
+
+                $("#label-to").text($("#datepicker-to").datepicker('getFormattedDate'));
+
+                if (startDate > endDate) {
+                    //$("#from").val($("#datepicker-to").datepicker('getFormattedDate'));
+                    finalStartDate = $("#datepicker-to").datepicker('getFormattedDate');
+                    $("#label-from").text($("#datepicker-to").datepicker('getFormattedDate'));
+                }
+            });
+
+            $("#datepicker-save").on("click", () => {
+                $("#from").val(finalStartDate);
+                $("#to").val(finalEndDate);
+                modal.hide();
+            });
+
+            $(".datepicker-button").on('click', () => {
+                finalStartDate = $("#from").val();
+                //$("#datepicker-from").datepicker('clearDates');
+                $("#datepicker-from").datepicker('setDate', finalStartDate);
+                finalEndDate = $("#to").val();
+                //$("#datepicker-to").datepicker('clearDates');
+                $("#datepicker-to").datepicker('setDate', finalEndDate);
+            });
+
+        });
+
+        var enableDateInput = (inputId) => $(`#${inputId}`).removeClass('disabled-input');
+        var disableDateinput = (inputId) => $(`#${inputId}`).addClass('disabled-input');
+
+    </script>
 
 </head>
 
 <body>
+
+    <!-- Modal -->
+    <div class="modal fade" id="pick-date-period" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content w-max-content mx-auto">
+                <div class="modal-header py-2">
+                    <h5 class="modal-title" id="modalLabel">Wybierz datę</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-1">
+                    <!-- bootstrap datepicker -->
+                    <div class="d-flex text-center pb-1">
+                        <div class="col-1 flex-grow-1">od:
+                            <span class="ms-1 text-white" id="label-from"></span>
+                        </div>
+                        <div class="me-3"></div>
+                        <div class="col-1 flex-grow-1">do:
+                            <span class="ms-1 text-white" id="label-to"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-daterange">
+                        <div class="me-3" id="datepicker-from"></div>
+                        <div id="datepicker-to"></div>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 px-3" id="datepicker-save-container">
+                    <button type="button" class="btn btn-primary m-0" id="datepicker-save">zapisz zmiany</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <nav>
         <!-- up to md (must be first) -->
@@ -51,12 +215,16 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
-                            <hr class="mt-0 mb-2"></a>
-                            <a href="Przychody.html" type="button" class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
+                            <hr class="mt-0 mb-2">
+                            <a href="Przychody.html" type="button"
+                                class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 przychód</a>
-                            <a href="Wydatki.html" type="button" class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
+                            <a href="Wydatki.html" type="button"
+                                class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 wydatek</a>
-                            <a href="Bilans.html" type="button" class="btn btn-nav shadow-none rounded-0 text-start active" aria-pressed="true">Przeglądaj
+                            <a href="Bilans.html" type="button"
+                                class="btn btn-nav shadow-none rounded-0 text-start active"
+                                aria-pressed="true">Przeglądaj
                                 bilans</a>
                             <hr class="mt-2 mb-2">
                             <div class="d-flex mb-2 align-items-center">
@@ -88,14 +256,17 @@
             <div class="d-none d-md-flex d-lg-none navbar navbar-expand-md fixed-top p-0">
                 <div class="container-fluid">
 
-                    <span class="text-white my-auto pe-2 me-1" href="#">Budżet osobisty</span>
+                    <span class="text-white my-auto pe-2 me-1">Budżet osobisty</span>
 
                     <div class="vr vr-40px"></div>
 
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="Navigation buttons">
-                        <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj wydatek</a>
-                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj wydatek</a>
-                        <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active" aria-pressed="true">Przeglądaj bilans</a>
+                        <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                            wydatek</a>
+                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                            wydatek</a>
+                        <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
+                            aria-pressed="true">Przeglądaj bilans</a>
                     </div>
 
                     <div class="d-flex pe-2">
@@ -103,13 +274,12 @@
                     </div>
 
                     <div class="dropdown d-flex">
-                        <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse"
-                            id="user-md" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse" id="user-md"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle ms-2">
                             <span class="me-auto">Default user</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2"
-                            aria-labelledby="user-md">
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2" aria-labelledby="user-md">
                             <li><a class="dropdown-item p-1" href="#">Ustawienia</a></li>
                             <li><a class="dropdown-item p-1" href="#">Profil</a></li>
                             <li>
@@ -167,20 +337,38 @@
     <main class="d-flex flex-column">
         <div class="pt-2 pt-sm-3 pt-md-3 ps-lg-5 pt-lg-5 mx-auto mx-lg-0" id="dates">
             <div class="d-flex align-items-md-center flex-column flex-md-row fs-5 p-0">
-                <div class="d-flex flex-column flex-sm-row align-items-center">
-                    <label for="period" class="text-nowrap m-0 me-2">Okres bilansu:</label>
-                    <select class="form-select classic w-max-content" aria-label="Okres bilansu" id="period">
-                        <option selected>Bieżący miesiąc</option>
-                        <option value="1">Poprzedni miesiąc</option>
-                        <option value="2">Bieżący rok</option>
-                        <option value="3">Niestandardowy</option>
-                    </select>
+                <div class="d-flex flex-column flex-sm-row align-items-center mx-auto mx-lg-0">
+                    <label for="period" class="text-nowrap m-0 me-sm-2">Okres bilansu:</label>
+                    <div class="d-flex">
+                        <select class="form-select classic w-max-content" aria-label="Okres bilansu" id="period">
+                            <option value="0">Bieżący miesiąc</option>
+                            <option value="1">Poprzedni miesiąc</option>
+                            <option value="2">Bieżący rok</option>
+                            <option value="3">Niestandardowy</option>
+                        </select>
+                        <div class="d-flex d-sm-none">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date-period"
+                                class="datepicker-button d-none btn btn-primary ms-2 py-auto px-2 d-flex">
+                                <i class="material-icons p-calendar">
+                                    edit_calendar
+                                </i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center pt-2 pb-1 pt-md-0 pb-sm-0 mx-auto mx-md-0">
                     <label for="from" class="ms-md-2 me-2">od:</label>
-                    <input type="text" class="form-control w-108px me-2" id="from">
+                    <input type="text" class="form-control disabled-input w-108px me-2" id="from">
                     <label for="to" class="me-2">do:</label>
-                    <input type="text" class="form-control w-108px" id="to">
+                    <input type="text" class="form-control disabled-input w-108px" id="to">
+                    <div class="d-none d-sm-block">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date-period"
+                            class="datepicker-button d-none btn btn-primary ms-2 py-auto px-2 d-flex">
+                            <i class="material-icons p-calendar">
+                                edit_calendar
+                            </i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -189,7 +377,9 @@
                 id="balance-accordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="incomes">
-                        <button class="accordion-button shadow-none collapsed p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" id="accordion-button-1">
+                        <button class="accordion-button shadow-none collapsed p-2" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
+                            aria-controls="collapseOne" id="accordion-button-1">
                             Przychody:
                         </button>
                     </h2>
@@ -227,7 +417,9 @@
                 </div>
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="expenses">
-                        <button class="accordion-button shadow-none collapsed p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" id="accordion-button-2">
+                        <button class="accordion-button shadow-none collapsed p-2" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
+                            aria-controls="collapseTwo" id="accordion-button-2">
                             Wydatki:
                         </button>
                     </h2>
@@ -309,7 +501,9 @@
                 </div>
                 <div class="accordion-item d-block d-md-none">
                     <h2 class="accordion-header" id="summary-accordion">
-                        <button class="accordion-button shadow-none collapsed p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" id="accordion-button-3">
+                        <button class="accordion-button shadow-none collapsed p-2" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false"
+                            aria-controls="collapseThree" id="accordion-button-3">
                             Podsumowanie:
                         </button>
                     </h2>
@@ -353,7 +547,7 @@
                                             <span>3000zł</span>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-center pt-2" id="balance-message">
+                                    <div class="balance-message d-flex justify-content-center pt-2">
                                         <span class="text-center fst-italic">
                                             <strong>Gratulacje. Świetnie zarządzasz finansami!</strong>
                                         </span>
@@ -413,7 +607,7 @@
                                 <div class="col-6 text-end pb-1"><span>Bilans:</span></div>
                                 <div class="col-6 ms-2 pb-1"><span>3000zł</span></div>
                             </div>
-                            <div class="d-flex mb-auto justify-content-center" id="balance-message">
+                            <div class="balance-message d-flex mb-auto justify-content-center">
                                 <span class="summary-border-top text-center
                                 px-2 pt-1">
                                     <strong>Gratulacje. Świetnie zarządzasz finansami!</strong>
@@ -427,7 +621,8 @@
     </main>
 </body>
 
-<script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
 
     $(document).ready(() => {
         $("main").css("visibility", "visible"); // to prevent flicker caused by resizing of divs on load
@@ -440,11 +635,11 @@
             $("#collapseThree").addClass("show");
         }
         else {
-            $("#accordion-button-2").removeClass("collapsed");            
-            $("#accordion-button-2").attr("aria-expanded", "true");       
+            $("#accordion-button-2").removeClass("collapsed");
+            $("#accordion-button-2").attr("aria-expanded", "true");
             $("#collapseTwo").addClass("show");
         }
-        
+
         resizeContentDivs();
     });
 
@@ -453,101 +648,43 @@
         waitForFinalEvent(function () {
             resizeContentDivs();
         }, 1, "uniqueId-1");
-    });
-
-    $("#accordion-button-3").on("click", () => resizeContentDivs());
-
-    var resizeContentDivs = () => {
-        let windowHeight = $(window).height();
-        let accordionContainerHeight = $(".accordion").outerHeight();
-        let accordionButtonHeight = $(".accordion-button").outerHeight();
-        let datesDivHeight = $("#dates").outerHeight();
-        let accordionPaddingsHeight = $(".accordion").outerHeight() - $(".accordion").height();
-        let navHeight = $("nav").height();
-
-        if ($(window).width() < 768) {
-            $(".accordion-body").css("height", windowHeight - navHeight - datesDivHeight - accordionPaddingsHeight - 3 * accordionButtonHeight - 5);
-
-            $("#chart-wrapper").css("padding-bottom", $("#chart-wrapper").parent().height());
-        }
-        else if ($(window).width() >= 768 && $(window).width() < 992) {
-            $(".accordion-body").css("height", windowHeight - navHeight - datesDivHeight - accordionPaddingsHeight - 2 * accordionButtonHeight - 4);
-            $("#summary").css("height", windowHeight - navHeight - datesDivHeight);
-        }
-        else {
-            $(".accordion-body").css("height", windowHeight - datesDivHeight - accordionPaddingsHeight - 2 * accordionButtonHeight - 4);
-            $("#summary").css("height", windowHeight - datesDivHeight);
-        }
-    }
-
-    var waitForFinalEvent = (function () {
-        var timers = {};
-        return function (callback, ms, uniqueId) {
-            if (!uniqueId) {
-                uniqueId = "Don't call this twice without a uniqueId";
-            }
-            if (timers[uniqueId]) {
-                clearTimeout(timers[uniqueId]);
-            }
-            timers[uniqueId] = setTimeout(callback, ms);
-        };
-    })();
-
-    $(function () {
-        /*var amountInputFormating = new Cleave('#amount', {
-                                        numeral: true,
-                                    delimiter: ' ',
-                                    numeralDecimalMark: ',',
-                                    numeralThousandsGroupStyle: 'thousand'
-        });
-
-                                    var dateInputFormating = new Cleave('#date', {
-                                        date: true,
-                                    delimiter: '.',
-                                    numeralDecimalMark: ',',
-                                    datePattern: ['d', 'm', 'Y']
-        });*/
-    });
-</script>
-
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-
-    google.charts.load('current', { 'packages': ['corechart'] });
-    google.charts.setOnLoadCallback(initChart);
-
-    $(window).resize(() => {  
         initChart();
         waitForFinalEvent(function () {
             initChart();
         }, 1, "uniqueId-2");
     });
 
-    $("#accordion-button-3").on("click", () => initChart());
+    $("#accordion-button-3").on("click", () => {
+        resizeContentDivs();
+        initChart();
+    });
 
-    function customizeTooltips (data) {
-        let total = 0;
-        data.Wf.forEach((amount) => {            
-            total += amount.c[1].v;
-        })
-        
-        data.Wf.forEach( (chartEntry) => {
-            let category = chartEntry.c[0].v;
-            let amount = chartEntry.c[1].v;
-            let currency = chartEntry.c[2].v 
-            let percentage = " (" + ((amount / total) * 100).toFixed(1) + "%)";    
-
-            chartEntry.c[2].v = category + ":\n" + amount + currency + percentage;            
+    $(function () {
+        var dateInputFormatingFrom = new Cleave('#from', {
+            date: true,
+            delimiter: '.',
+            numeralDecimalMark: ',',
+            datePattern: ['d', 'm', 'Y']
         });
-    };
+
+        var dateInputFormatingTo = new Cleave('#to', {
+            date: true,
+            delimiter: '.',
+            numeralDecimalMark: ',',
+            datePattern: ['d', 'm', 'Y']
+        });
+    });
+
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(initChart);
 
     function initChart() {
 
         var data = google.visualization.arrayToDataTable([
             [
-                {label: 'Kategoria', type: 'string'},
-                {label: 'Suma', type: 'number'},
-                {type: 'string', role: 'tooltip'}                
+                { label: 'Kategoria', type: 'string' },
+                { label: 'Suma', type: 'number' },
+                { type: 'string', role: 'tooltip' }
             ],
             ['Jedzenie', 1000, 'zł'],
             ['Mieszkanie', 1500, 'zł'],
@@ -565,10 +702,9 @@
             ['Darowizna', 5, 'zł'],
             ['Inne wydatki', 130, 'zł']
         ]);
+        data.addColumn({ type: 'string', role: 'tooltip' });
 
         customizeTooltips(data);
-
-        data.addColumn({type: 'string', role: 'tooltip'});
 
         var options = {
             backgroundColor: {
@@ -616,6 +752,58 @@
         var chartAccordion = new google.visualization.PieChart(document.getElementById('piechart-accordion'));
         chartAccordion.draw(data, options);
     }
+
+    var resizeContentDivs = () => {
+        let windowHeight = $(window).height();
+        let accordionContainerHeight = $(".accordion").outerHeight();
+        let accordionButtonHeight = $(".accordion-button").outerHeight();
+        let datesDivHeight = $("#dates").outerHeight();
+        let accordionPaddingsHeight = $(".accordion").outerHeight() - $(".accordion").height();
+        let navHeight = $("nav").height();
+
+        if ($(window).width() < 768) {
+            $(".accordion-body").css("height", windowHeight - navHeight - datesDivHeight - accordionPaddingsHeight - 3 * accordionButtonHeight - 5);
+
+            $("#chart-wrapper").css("padding-bottom", $("#chart-wrapper").parent().height());
+        }
+        else if ($(window).width() >= 768 && $(window).width() < 992) {
+            $(".accordion-body").css("height", windowHeight - navHeight - datesDivHeight - accordionPaddingsHeight - 2 * accordionButtonHeight - 4);
+            $("#summary").css("height", windowHeight - navHeight - datesDivHeight);
+        }
+        else {
+            $(".accordion-body").css("height", windowHeight - datesDivHeight - accordionPaddingsHeight - 2 * accordionButtonHeight - 4);
+            $("#summary").css("height", windowHeight - datesDivHeight);
+        }
+    }
+
+    function customizeTooltips(data) {
+        let total = 0;
+        data.Wf.forEach((amount) => {
+            total += amount.c[1].v;
+        })
+
+        data.Wf.forEach((chartEntry) => {
+            let category = chartEntry.c[0].v;
+            let amount = chartEntry.c[1].v;
+            let currency = chartEntry.c[2].v
+            let percentage = " (" + ((amount / total) * 100).toFixed(1) + "%)";
+
+            chartEntry.c[2].v = category + ":\n" + amount + currency + percentage;
+        });
+    };
+
+    var waitForFinalEvent = (function () {
+        var timers = {};
+        return function (callback, ms, uniqueId) {
+            if (!uniqueId) {
+                uniqueId = "Don't call this twice without a uniqueId";
+            }
+            if (timers[uniqueId]) {
+                clearTimeout(timers[uniqueId]);
+            }
+            timers[uniqueId] = setTimeout(callback, ms);
+        };
+    })();
 
 </script>
 
