@@ -1,3 +1,11 @@
+<?php
+    session_start();
+
+    if (!isset($_SESSION['isLoggedIn'])) {
+        header('Location: Logowanie.php');
+        exit();
+    }
+?>
 <!DOCTYPE html>
 <html lang="pl">
 
@@ -23,7 +31,7 @@
     <script src="js/bootstrap/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="css/bootstrap/bootstrap-datepicker3.min.css">
     <script src="js/bootstrap/bootstrap-datepicker.min.js"></script>
-    <script src="js/bootstrap/bootstrap-datepicker.pl.min.js"></script>
+    <script src="js/bootstrap/bootstrap-datepicker-pl.min.js"></script>
 
     <script src="js/cleave/cleave.min.js"></script>
 
@@ -285,7 +293,7 @@
                             <li>
                                 <hr class="dropdown-divider m-0 mt-2 mb-2">
                             </li>
-                            <li><a class="dropdown-item p-1" href="Logowanie.html">Wyloguj się</a></li>
+                            <li><a class="dropdown-item p-1" href="wyloguj.php">Wyloguj się</a></li>
                         </ul>
                     </div>
                 </div>
@@ -328,7 +336,7 @@
                     <li>
                         <hr class="dropdown-divider m-0 mt-2 mb-2">
                     </li>
-                    <li><a class="dropdown-item p-1" href="Logowanie.html">Wyloguj się</a></li>
+                    <li><a class="dropdown-item p-1" href="wyloguj.php">Wyloguj się</a></li>
                 </ul>
             </div>
         </div>
