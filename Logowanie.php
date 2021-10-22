@@ -1,3 +1,18 @@
+<?php
+	session_start();
+
+	if (isset($_SESSION['isLoggedIn']) && ($_SESSION['isLoggedIn']==true)) {
+		header('Location: Przychody.php');
+		exit();
+	}
+
+	if (isset($_SESSION['loginErrorMsg'])) {
+		$loginErrorMsg = $_SESSION['loginErrorMsg'];
+	}
+	else {
+		$loginErrorMsg = NULL;
+	}
+?>
 <!DOCTYPE html>
 <html lang = "pl">
 <head>
@@ -18,6 +33,14 @@
 	<link rel="stylesheet" href="css/loginRegister.css">
 	
 	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>	
+
+	<script>
+		var loginErrorMsg = "<?php echo $loginErrorMsg; ?>";
+		if (loginErrorMsg) {
+			//do stuff
+			console.log(loginErrorMsg);
+		}
+	</script>
 	
 </head>
 <body class="d-flex flex-column align-content-center">	
@@ -26,7 +49,7 @@
 
 	<main class="flex-1-1-auto">
 
-		<form action="Przychody.html" class="container text-center mw-px-400">
+		<form action="zaloguj.php" method="post" class="container text-center mw-px-400">
 
 			<div class="row">
 
@@ -35,11 +58,11 @@
 				<div class="col-sm-12">
 
 					<div class="input-group mb-4 d-flex justify-content-center">
-						<input type="text" class="form-control text-center" placeholder="Nazwa użytkownika"> 
+						<input type="text" name="login" class="form-control text-center" autocomplete="off" placeholder="Nazwa użytkownika"> 
 					</div>
 
 					<div class="input-group mb-4 d-flex justify-content-center">
-						<input type="password" class="form-control text-center" placeholder="Hasło">
+						<input type="password" name="password" class="form-control text-center" autocomplete="off" placeholder="Hasło" >
 					</div>	
 					
 					<button class="btn btn-primary col-12 shadow-none" type="submit">Zaloguj się!</button>
@@ -52,7 +75,7 @@
 						<div class="horizontal-line-80"></div>
 					</div>
 					<div class="d-flex flex-column justify-content-center">
-						<a class="mb-2" href="Rejestracja.html">Nie posiadasz jeszcze konta?</a>		
+						<a class="mb-2" href="Rejestracja.php">Nie posiadasz jeszcze konta?</a>		
 						<a class="mb-2" href="">Zapomniałeś hasło?</a>	
 					</div>
 					
