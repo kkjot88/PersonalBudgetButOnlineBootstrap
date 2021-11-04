@@ -21,16 +21,21 @@
         $password = htmlentities($password, ENT_QUOTES, "UTF-8");
 
         if ($credentialsQuery = @$connection->query(
-            sprintf("SELECT * FROM users WHERE name='%s' AND password='%s'",
-            mysqli_real_escape_string($connection,$login),
-            mysqli_real_escape_string($connection,$password)))) {
+            sprintf("SELECT * FROM users WHERE name='%s'",
+            mysqli_real_escape_string($connection,$login)))) {
             $returnedUsersCount = $credentialsQuery->num_rows;
-            if ($returnedUsersCount > 0) {
-                $_SESSION['isLoggedIn'] = true;
-                $_SESSION['user'] = $credentialsQuery->fetch_assoc();                
-                $credentialsQuery->close();
-                unset($_SESSION['loginErrorMsg']);             
-                header('Location: Przychody.php');
+            if ($returnedUsersCount > 0) {                
+                $_SESSION['user'] = $credentialsQuery->fetch_assoc();
+                if(password_verify($password,$_SESSION['user']['password'])) {
+                    $_SESSION['isLoggedIn'] = true;            
+                    $credentialsQuery->close();
+                    unset($_SESSION['loginErrorMsg']);             
+                    header('Location: Przychody.php');
+                }
+                else {
+                    $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";
+                    header('Location: Logowanie.php');
+                }          
             }
             else {
                 $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";

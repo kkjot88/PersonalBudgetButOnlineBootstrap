@@ -1,3 +1,133 @@
+<?php
+
+	session_start();
+
+	if (isset($_POST['username'])) {
+		
+		$isValid = true;
+
+		$username = $_POST['username'];
+		$emailPreSanitization = $_POST['email'];
+		$email = filter_var($emailPreSanitization, FILTER_SANITIZE_EMAIL);
+		$password = $_POST['password'];
+		$passwordRepeat = $_POST['passwordRepeat'];
+		$reCaptchaSecretKey = "6Le9augcAAAAAHarPZyouEy1VHHTxXyvZoex6ihe";
+		$checkboxValue = isset($_POST['checkbox']);
+
+		console($checkboxValue);
+
+		if (isset($username)) {
+			console($username);
+		}
+
+		if ((strlen($username)<3) || (strlen($username) >20)) {
+			$isValid = false;
+			$_SESSION['e_username'] = "Nazwa użytkownika musi miec od 3 do 20 znaków"; //poprawic			
+		}
+
+		if (!ctype_alnum($username)) {
+			$isValid = false;
+			$_SESSION['e_username'] = "Nazwa użytkownika musi składać się tylko z liter i cyfr (bez polskich znaków)";
+		}
+
+		if ((filter_var($email, FILTER_VALIDATE_EMAIL)==false) || ($email != $emailPreSanitization)) {
+			console($email);
+			console($emailPreSanitization);
+			$isValid = false;
+			$_SESSION['e_email'] = "Adres email musi składać się tylko z liter i cyfr (bez polskich znaków) oraz @";
+		}	
+
+		if ((strlen($password) < 1) || (strlen($password) > 20)) {
+			$isValid = false;
+			$_SESSION['e_password'] = "Hasło musi posiadać od 8 do 20 znaków";
+		}
+
+		if ($password != $passwordRepeat) {
+			$isValid = false;
+			$_SESSION['e_password'] = "Hasła nie są takie same";
+		}
+		$passwordHashed = password_hash($password, PASSWORD_DEFAULT);
+
+		if (!$checkboxValue) {
+			$isValid = false;
+			$_SESSION['e_checkbox'] = "Potwierdź akceptację regulaminu";
+		}
+
+		$checkCaptcha = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$reCaptchaSecretKey.'&response='.$_POST['g-recaptcha-response']);
+		$captchaResponse = json_decode($checkCaptcha);
+		if (!($captchaResponse->success)) {
+			$isValid = false;
+			$_SESSION['e_captcha'] = "Potwierdź że jesteś człowiekiem";
+		}
+
+		require_once "connect.php";
+
+		mysqli_report(MYSQLI_REPORT_STRICT);
+		try {
+			$connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+			if ($connection->connect_errno != 0) {
+				throw new Exception(mysqli_connect_errno());
+			}
+			else {
+				$result = $connection->query("SELECT id FROM users WHERE email='$email'");
+
+				if (!$result) {
+					throw new Exception($connection->error);
+				}
+				$emailsNumber = $result->num_rows;
+
+				if($emailsNumber > 0) {
+					$isValid = false;
+					$_SESSION['e_email'] = "Istnieje już konto o takim adresie email";
+				}
+
+				$result = $connection->query("SELECT id FROM users WHERE name='$username'");
+
+				if (!$result) {
+					throw new Exception($connection->error);
+				}
+				$usernamesNumber = $result->num_rows;
+
+				if($usernamesNumber > 0) {
+					$isValid = false;
+					$_SESSION['e_username'] = "Istnieje już konto o takiej nazwie użytkownika";
+				}
+
+				if ($isValid == true) {										
+					if ($connection->query("INSERT INTO users VALUES (NULL, '$username', '$passwordHashed', '$email')")) {
+						$_SESSION['isRegistrationSuccesful'] = true;
+						$_SESSION['username'] = $username;
+						header('Location: witamy.php');
+					}
+					else {
+						throw new Exception($connection->error);
+					}
+				}
+
+				$connection->close();
+			}
+		}
+		catch (Exception $e) {
+			console("Błąd serwera something something");
+			console($e);
+		}		
+	}
+
+	//-----------------debug-function-----------------------
+    function console($data, $context = 'Debug in Console') {
+
+        // Buffering to solve problems frameworks, like header() in this and not a solid return.
+        ob_start();
+
+        $output  = 'console.info(\'' . $context . ':\');';
+        $output .= 'console.log(' . json_encode($data) . ');';
+        $output  = sprintf('<script>%s</script>', $output);
+
+        echo $output;
+    }
+    //------------------------------------------------------
+?>
 <!DOCTYPE html>
 <html lang = "pl">
 <head>
@@ -9,15 +139,17 @@
 	
 	<meta name="description" content="Strona służąca do zapanowania nad swoim budżetem osobistym" />
 	<meta name="keywords" content="finanse, budzet, budżet, rachunki, rachunkowość, pieniądze, bilans, wydatki, wydatek, dochodzy, przychody"/>	
+	
+	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>
 
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bonheur+Royale">
 	
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
 	<link rel="stylesheet" href="css/general.css">
-	<link rel="stylesheet" href="css/loginRegister.css">
+	<link rel="stylesheet" href="css/loginRegister.css">	
 
-	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>	
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 	
 </head>
 <body class="d-flex flex-column align-content-center">	
@@ -26,7 +158,7 @@
 
 	<main class="flex-1-1-auto">
 
-		<form action="Przychody.html" class="container mw-px-400">
+		<form method="post" class="container mw-px-400">
 
 			<div class="row">
 
@@ -46,32 +178,91 @@
 				
 				<div class="col-sm-12 d-flex flex-column">
 
-					<div class="input-group mb-4 d-flex justify-content-center">
-						<input type="text" class="form-control text-center" placeholder="Nazwa użytkownika"> 
+					<div class="input-group mb-2 d-flex justify-content-center">
+						<input type="text" class="form-control text-center" placeholder="Nazwa użytkownika"
+						name="username"
+						value = "<?php
+									echo (isset($username) && !isset($_SESSION['e_username'])) ? $username : '';
+								?>"> 
+					</div>					
+
+					<?php
+						if (isset($_SESSION['e_username'])) {
+							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_username'].'</div>';
+							unset($_SESSION['e_username']);
+						}
+						//else if (isset($))
+					?>
+
+                    <div class="input-group mt-2 mb-2 d-flex justify-content-center">
+						<input type="text" class="form-control text-center" placeholder="Adres email"
+						name="email"
+						value = "<?php
+									echo (isset($email) && !isset($_SESSION['e_email'])) ? $email : '';
+								?>"> 
 					</div>
 
-                    <div class="input-group mb-4 d-flex justify-content-center">
-						<input type="text" class="form-control text-center" placeholder="Adres email"> 
+					<?php
+						if (isset($_SESSION['e_email'])) {
+							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_email'].'</div>';
+							unset($_SESSION['e_email']);
+						}
+					?>
+
+					<div class="input-group mt-2 mb-2 d-flex justify-content-center">
+						<input type="password" class="form-control text-center" placeholder="Hasło"
+						name="password">
 					</div>
 
-					<div class="input-group mb-4 d-flex justify-content-center">
-						<input type="password" class="form-control text-center" placeholder="Hasło">
-					</div>
+					<?php
+						if (isset($_SESSION['e_password'])) {
+							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_password'].'</div>';
+						}
+					?>
 
-                    <div class="input-group mb-3 d-flex justify-content-center">
-						<input type="password" class="form-control text-center" placeholder="Powtórz hasło">
+                    <div class="input-group mt-2 mb-2 d-flex justify-content-center">
+						<input type="password" class="form-control text-center" placeholder="Powtórz hasło"
+						name="passwordRepeat">
 					</div>	
 
-                    <div class="form-check d-flex w-90 align-self-center mb-3">
-                        <input class="form-check-input align-self-center checkbox-big" type="checkbox" value="" id="flexCheckDefault" checked>
-                        <label class="form-check-label d-block ps-3" for="flexCheckDefault">
-                                Wyrażam zgodę na przetwarzanie danych, akceptuję 
-                                <a href=""><u>Regulamin</u></a> oraz
-                                <a href=""><u>Politykę Prywatności</u></a>.                               
-                        </label>
-                      </div>
+					<?php
+						if (isset($_SESSION['e_password'])) {
+							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_password'].'</div>';
+							unset($_SESSION['e_password']);
+						}
+					?>
+
+					<div class="ms-sm-3 mt-2">
+						<div class="form-check d-flex w-90 align-self-center ms-sm-4 mb-2">
+							<input class="form-check-input align-self-center checkbox-big" type="checkbox" id="flexCheckDefault" name="checkbox" 
+							<?php
+								if (!isset($_SESSION['e_checkbox'])) echo 'checked';								
+							?>> 
+							<label class="form-check-label d-block ps-3" for="flexCheckDefault">
+									Wyrażam zgodę na przetwarzanie danych, akceptuję 
+									<a href=""><u>Regulamin</u></a> oraz
+									<a href=""><u>Politykę Prywatności</u></a>.                               
+							</label>
+						</div>
+					</div>
+
+					<?php
+						if (isset($_SESSION['e_checkbox'])) {
+							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_checkbox'].'</div>';
+							unset($_SESSION['e_checkbox']);
+						}
+					?>				  
 					
-					<button class="btn btn-primary col-12 shadow-none" type="submit">Zarejestruj się!</button>
+					<div class="g-recaptcha mx-sm-auto mt-2 mb-2" data-sitekey="6Le9augcAAAAAKQPrwbiTCKLM0EWIwOvDk-E6h0_" data-theme="dark"></div>
+
+					<?php
+						if (isset($_SESSION['e_captcha'])) {
+							echo '<div class="text-invalid mx-auto mb-1">'.$_SESSION['e_captcha'].'</div>';
+							unset($_SESSION['e_captcha']);
+						}
+					?>
+					
+					<button class="btn btn-primary col-12 shadow-none mt-2" type="submit">Zarejestruj się!</button>	
 
 					<div class="d-flex justify-content-center mt-4 mb-3">
 						<div class="horizontal-line-80"></div>
