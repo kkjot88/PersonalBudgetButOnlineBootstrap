@@ -1,0 +1,9 @@
+addFinances.php 
+
+	rejestracja
+-ogarnac defaultowe tabele i dodowanie z nich do metod kategorii itd przy tworzeniu usera
+-zastanowic sie czy dany uklad jest ok, ??co zrobic zeby nie dodawac/usuwac ciagle z glownej tabeli metod itd indeksow gdy userowe je usuwaja?? 
+	//ogarniete, narazie taki uklad zostawiony
+
+	bilans
+-podstawowe zapytania zrobione, dokonczyc wyswietlanie wynikow zapytan i inne rzeczy co wyjda po drodze

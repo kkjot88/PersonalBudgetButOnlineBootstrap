@@ -65,9 +65,16 @@
 						<input type="password" name="password" class="form-control text-center" autocomplete="off" placeholder="Hasło" >
 					</div>	
 					
-					<button class="btn btn-primary col-12 shadow-none" type="submit">Zaloguj się!</button>
+					<button class="btn btn-primary col-12 shadow-none mb-3" type="submit">Zaloguj się!</button>
 
-					<div class="d-flex justify-content-center mt-4 mb-3">
+					<?php
+						if (isset($_SESSION['loginErrorMsg'])) {
+							echo '<div class="text-invalid mb-3 mx-auto">'.$_SESSION['loginErrorMsg'].'</div>';
+							unset($_SESSION['loginErrorMsg']);
+						}
+					?>
+
+					<div class="d-flex justify-content-center mt-2 mb-3">
 						<!-- 
 							for some reason can't change color to white for <hr> :(,
 							shade is different than basic, making it not desired.

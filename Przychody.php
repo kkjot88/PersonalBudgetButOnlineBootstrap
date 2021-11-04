@@ -5,18 +5,49 @@
         header('Location: Logowanie.php');
         exit();
     }
+    
+    $userid = $_SESSION['user']['userid'];      
 
-    console($_SESSION['user']);
+    require_once "connect.php";
+    mysqli_report(MYSQLI_REPORT_STRICT);
+    
+    try {
+        $connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+        if ($connection->connect_errno != 0) {
+            throw new Exception(mysqli_connect_errno());
+        }
+        else {             
+            if ($categories = $connection->query(
+                "SELECT 
+                    ic.category,
+                    ic.categoryid
+                FROM incomecategories ic
+                INNER JOIN users_incomecategories uic
+                USING (categoryid)
+                WHERE uic.userid = '$userid'
+                ORDER BY ic.categoryid"
+            )) {} else {
+                throw new Exception($connection->error);
+            }
+            $connection->close();
+        }
+	} 
+    catch (Exception $e) {
+        $_SESSION['notfound'] = "Operacja nie powiodła się";
+        header('Location: notfound.php');
+        console("Błąd serwera something something");
+        console($e);
+	}	
 
     //-----------------debug-function-----------------------
-    function console($data, $context = 'Debug in Console') {
+    function console($data, $context = '') {
 
         // Buffering to solve problems frameworks, like header() in this and not a solid return.
         ob_start();
 
-        $output  = 'console.info(\'' . $context . ':\');';
-        $output .= 'console.log(' . json_encode($data) . ');';
-        $output  = sprintf('<script>%s</script>', $output);
+        $output = 'console.log(' . json_encode($data) . ');';
+        $output = sprintf('<script>%s</script>', $output);
 
         echo $output;
     }
@@ -60,7 +91,26 @@
 </head>
 <body>
 
-    <!-- Modal -->
+    <!-- Success Modal //to be styled -->
+    <div class="modal fade" id="success" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content w-max-content mx-auto">
+                <div class="modal-header py-2">
+                    <h5 class="modal-title" id="modalLabel"></h5>
+                </div>
+                <div class="modal-body fs-5">
+                    Przychód dodany pomyślnie
+                </div>
+                <div class="modal-footer pt-3">                   
+                    <button type="button" class="btn-primary mx-auto" data-bs-dismiss="modal" aria-label="Kontynuuj">
+                        Kontynuuj
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+    <!-- Datepicker Modal -->
     <div class="modal fade" id="pick-date" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content w-max-content mx-auto">
@@ -69,7 +119,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- bootstrap datepicker -->
+                    <div id="datepicker-modal-body">                        
+                        <!-- bootstrap datepicker -->
+                    </div>
                 </div>
                 <div class="modal-footer pt-3"></div>
             </div>
@@ -97,13 +149,13 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
                             <hr class="mt-0 mb-2">
-                            <a href="Przychody.html" type="button"
+                            <a href="Przychody.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start active" aria-pressed="true">Dodaj
                                 przychód</a>
-                            <a href="Wydatki.html" type="button"
+                            <a href="Wydatki.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 wydatek</a>
-                            <a href="Bilans.html" type="button"
+                            <a href="Bilans.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Przeglądaj
                                 bilans</a>
                             <hr class="mt-2 mb-2">
@@ -120,7 +172,7 @@
                                         manage_accounts
                                     </i>
                                 </a>
-                                <a href="Logowanie.html" class="d-flex">
+                                <a href="Logowanie.php" class="d-flex">
                                     <i class="material-icons fs-1">
                                         logout
                                     </i>
@@ -141,11 +193,11 @@
                     <div class="vr vr-40px"></div>
 
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="Navigation buttons">
-                        <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
+                        <a href="Przychody.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
                             aria-pressed="true">Dodaj wydatek</a>
-                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                        <a href="Wydatki.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Przeglądaj
+                        <a href="Bilans.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Przeglądaj
                             bilans</a>
                     </div>
 
@@ -181,17 +233,17 @@
             <hr class="me-3">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>
-                    <a href="Przychody.html" class="nav-link mb-2 active" aria-current="page">
+                    <a href="Przychody.php" class="nav-link mb-2 active" aria-current="page">
                         Dodaj przychód
                     </a>
                 </li>
                 <li>
-                    <a href="Wydatki.html" class="nav-link mb-2 me-2">
+                    <a href="Wydatki.php" class="nav-link mb-2 me-2">
                         Dodaj wydatek
                     </a>
                 </li>
                 <li>
-                    <a href="Bilans.html" class="nav-link me-2">
+                    <a href="Bilans.php" class="nav-link me-2">
                         Przeglądaj bilans
                     </a>
                 </li>
@@ -219,8 +271,12 @@
 
         <form class="container d-flex flex-column 
         m-0 mx-auto m-lg-0
-        px-auto p-md-0 pe-md-5 pt-4 py-md-5">
-            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-3">
+        px-auto p-md-0 pe-md-5 pt-4 py-md-5" action="addFinances.php" method="post">
+
+            <!-- hidden input for income/expense differentation with post-->
+            <input type="hidden" name="type" value="income">
+
+            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-2">
                 <!-- md - xxl -->
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="amount"
@@ -230,12 +286,26 @@
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <div class="input-group">
-                        <input type="text" class="form-control align-self-center" id="amount" autocomplete="off">
+                        <input type="text" class="form-control align-self-center" id="amount" name="amount" autocomplete="off">
                         <span class="input-group-text">zł</span>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+
+            <?php 
+            echo (isset($_SESSION['e_amount'])) ?
+            '<div class="row justify-content-center justify-content-md-start">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
+                    <span class="form-label align-self-center m-0 fs-5 fs-md-4 text-invalid">'.
+                        $_SESSION['e_amount'].
+                    '</span>
+                </div>
+            </div>' : ''; 
+            unset($_SESSION['e_amount']);
+            ?>
+
+            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="date" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">
                         Data:
@@ -243,7 +313,7 @@
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <div class="input-group">
-                        <input type="text" class="form-control align-self-center" id="date" autocomplete="off">
+                        <input type="text" class="form-control align-self-center" id="date" name="date" autocomplete="off">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date" class="input-group-text p-0" id="datepicker-button">
                             <i class="material-icons p-calendar">
                                 edit_calendar
@@ -260,11 +330,18 @@
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <select class="form-select classic align-self-end" aria-label="Kategoria przychodu"
-                        id="income-category">
-                        <option selected>Wynagrodzenie</option>
-                        <option value="1">Odsetki bankowe</option>
-                        <option value="2">Sprzedaż na allegro</option>
-                        <option value="3">Inne</option>
+                        id="income-category" name="income-category">
+
+                        <?php
+                            $selected = true;
+                            while ($option = $categories->fetch_assoc()) {
+                                echo ($selected) ?
+                                    '<option selected>'.$option['category'].'</option>':
+                                    '<option>'.$option['category'].'</option>';
+                                $selected = false;
+                            }
+                        ?>
+
                     </select>
                 </div>
             </div>
@@ -274,7 +351,7 @@
                         class="align-self-start m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Komentarz:</label>
                 </div>
                 <div class="col-10 col-md-6 col-lg-6 col-xl-5 d-flex p-0">
-                    <textarea class="form-control align-self-center" rows="5" id="comment"></textarea>
+                    <textarea class="form-control align-self-center" rows="5" id="comment" name="comment"></textarea>
                 </div>
             </div>
             <div class="row justify-content-center justify-content-md-start pb-3">
@@ -296,23 +373,31 @@
 
     $(function () {
 
+        var success = <?php
+            echo isset($_SESSION['success']) ? 'true' : 'false';
+            unset($_SESSION['success']);
+        ?>
+
+        var successModal = new bootstrap.Modal($('#success'));
+        success ? successModal.show() : successModal.hide();
+
         var modal = new bootstrap.Modal($('#pick-date'));
-        var today = new Date().toLocaleDateString();
+        var today = new Date().toLocaleDateString('pl-PL');
 
         $('#date').val(today);
 
-        $('.modal-body').datepicker({
+        $('#datepicker-modal-body').datepicker({
             language: 'pl',
             todayHighlight: 'true',
         });
 
-        $('.modal-body').on('changeDate', () => {
-            $('#date').val($('.modal-body').datepicker('getFormattedDate'));
+        $('#datepicker-modal-body').on('changeDate', () => {
+            $('#date').val($('#datepicker-modal-body').datepicker('getFormattedDate'));
             modal.hide();
         });
 
         $('#datepicker-button').on('click',
-            () => $('.modal-body').datepicker('update', $('#date').val())
+            () => $('#datepicker-modal-body').datepicker('update', $('#date').val())
         );
 
         var amountInputFormating = new Cleave('#amount', {

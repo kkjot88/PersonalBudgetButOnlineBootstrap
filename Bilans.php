@@ -224,13 +224,13 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
                             <hr class="mt-0 mb-2">
-                            <a href="Przychody.html" type="button"
+                            <a href="Przychody.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 przychód</a>
-                            <a href="Wydatki.html" type="button"
+                            <a href="Wydatki.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 wydatek</a>
-                            <a href="Bilans.html" type="button"
+                            <a href="Bilans.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start active"
                                 aria-pressed="true">Przeglądaj
                                 bilans</a>
@@ -248,7 +248,7 @@
                                         manage_accounts
                                     </i>
                                 </a>
-                                <a href="Logowanie.html" class="d-flex">
+                                <a href="Logowanie.php" class="d-flex">
                                     <i class="material-icons fs-1">
                                         logout
                                     </i>
@@ -269,11 +269,11 @@
                     <div class="vr vr-40px"></div>
 
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="Navigation buttons">
-                        <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                        <a href="Przychody.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                        <a href="Wydatki.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
+                        <a href="Bilans.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
                             aria-pressed="true">Przeglądaj bilans</a>
                     </div>
 
@@ -308,17 +308,17 @@
             <hr class="me-3">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>
-                    <a href="Przychody.html" class="nav-link mb-2 me-2">
+                    <a href="Przychody.php" class="nav-link mb-2 me-2">
                         Dodaj przychód
                     </a>
                 </li>
                 <li>
-                    <a href="Wydatki.html" class="nav-link mb-2 me-2">
+                    <a href="Wydatki.php" class="nav-link mb-2 me-2">
                         Dodaj wydatek
                     </a>
                 </li>
                 <li>
-                    <a href="Bilans.html" class="nav-link active" aria-current="page">
+                    <a href="Bilans.php" class="nav-link active" aria-current="page">
                         Przeglądaj bilans
                     </a>
                 </li>

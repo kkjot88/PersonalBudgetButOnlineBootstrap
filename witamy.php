@@ -2,12 +2,8 @@
     session_start();
 
     if (!isset($_SESSION['isRegistrationSuccesful'])) {
-        header('Location: Logowanie.php'); //zmienic na sorry nie udalo sie stworzyc konta
+        header('Location: Rejestracja.php');
         exit();
-    }
-    else {
-        unset($_SESSION['isRegistrationSuccesful']);
-        $_SESSION['isLoggedIn'] = true;
     }
 ?>
 <!DOCTYPE html>
@@ -34,7 +30,8 @@
 </head>
 <body class="d-flex h-75">
     
-    <form action="Przychody.php" class="d-flex flex-column mx-auto my-auto ">
+    <form action="zaloguj.php" class="d-flex flex-column mx-auto my-auto ">        
+
         <div class="mx-auto fs-1 mb-2">Witaj 
             <?php
             echo '<strong class="text-success">'.$_SESSION['username'].'</strong>!';
@@ -45,7 +42,7 @@
             Przejdź do aplikacji
         </button>
         <div class="mx-auto fs-4 mt-3">lub</div>        
-        <a class="d-flex border-bottom-1 mx-auto mt-2 px-2 fs-4" href="wyloguj.php">
+        <a class="d-flex border-bottom-1 mx-auto mt-2 px-2 fs-4" href="witamyExit.php">
             wróć do strony głównej.
         </a>
     </form>

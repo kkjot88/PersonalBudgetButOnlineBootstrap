@@ -14,12 +14,6 @@
 		$reCaptchaSecretKey = "6Le9augcAAAAAHarPZyouEy1VHHTxXyvZoex6ihe";
 		$checkboxValue = isset($_POST['checkbox']);
 
-		console($checkboxValue);
-
-		if (isset($username)) {
-			console($username);
-		}
-
 		if ((strlen($username)<3) || (strlen($username) >20)) {
 			$isValid = false;
 			$_SESSION['e_username'] = "Nazwa użytkownika musi miec od 3 do 20 znaków"; //poprawic			
@@ -30,14 +24,12 @@
 			$_SESSION['e_username'] = "Nazwa użytkownika musi składać się tylko z liter i cyfr (bez polskich znaków)";
 		}
 
-		if ((filter_var($email, FILTER_VALIDATE_EMAIL)==false) || ($email != $emailPreSanitization)) {
-			console($email);
-			console($emailPreSanitization);
+		if ((filter_var($email, FILTER_VALIDATE_EMAIL)==false) || ($email != $emailPreSanitization)) {		
 			$isValid = false;
 			$_SESSION['e_email'] = "Adres email musi składać się tylko z liter i cyfr (bez polskich znaków) oraz @";
 		}	
 
-		if ((strlen($password) < 1) || (strlen($password) > 20)) {
+		if ((strlen($password) < 3) || (strlen($password) > 20)) {
 			$isValid = false;
 			$_SESSION['e_password'] = "Hasło musi posiadać od 8 do 20 znaków";
 		}
@@ -61,8 +53,8 @@
 		}
 
 		require_once "connect.php";
-
 		mysqli_report(MYSQLI_REPORT_STRICT);
+		
 		try {
 			$connection = new mysqli($host, $db_user, $db_password, $db_name);
 
@@ -70,7 +62,7 @@
 				throw new Exception(mysqli_connect_errno());
 			}
 			else {
-				$result = $connection->query("SELECT id FROM users WHERE email='$email'");
+				$result = $connection->query("SELECT userid FROM users WHERE email='$email'");
 
 				if (!$result) {
 					throw new Exception($connection->error);
@@ -82,7 +74,7 @@
 					$_SESSION['e_email'] = "Istnieje już konto o takim adresie email";
 				}
 
-				$result = $connection->query("SELECT id FROM users WHERE name='$username'");
+				$result = $connection->query("SELECT userid FROM users WHERE name='$username'");
 
 				if (!$result) {
 					throw new Exception($connection->error);
@@ -94,23 +86,186 @@
 					$_SESSION['e_username'] = "Istnieje już konto o takiej nazwie użytkownika";
 				}
 
-				if ($isValid == true) {										
-					if ($connection->query("INSERT INTO users VALUES (NULL, '$username', '$passwordHashed', '$email')")) {
-						$_SESSION['isRegistrationSuccesful'] = true;
-						$_SESSION['username'] = $username;
-						header('Location: witamy.php');
-					}
-					else {
+				if ($isValid == true) {
+
+					if ($incomeDefaultCategoriesQuery = $connection->query(
+						"SELECT 
+							icd.category icdcat,
+							icd.categoryid icdcatid
+						FROM incomecategories_default icd
+						ORDER BY icd.categoryid"
+					)) {
+						$incomeDefaultCategories = [];
+						$i = 0;
+						while ($category = $incomeDefaultCategoriesQuery->fetch_assoc()) {
+							$incomeDefaultCategories[$i] = '"'.$connection->real_escape_string($category['icdcat']).'"';
+							$i++;
+						}
+					} else {
 						throw new Exception($connection->error);
 					}
-				}
+		
+					if ($expenseDefaultCategoriesQuery = $connection->query(
+						"SELECT 
+							ecd.category ecdcat,
+							ecd.categoryid ecdcatid
+						FROM expensecategories_default ecd
+						ORDER BY ecd.categoryid"
+					)) {
+						$expenseDefaultCategories = [];            
+						$i = 0;
+						while ($category = $expenseDefaultCategoriesQuery->fetch_assoc()) {
+							$expenseDefaultCategories[$i] = '("'.$connection->real_escape_string($category['ecdcat']).'")';
+							$i++;
+						}            
+					} else {
+						throw new Exception($connection->error);
+					}
+		
+					if ($defaultPaymentMethodsQuery = $connection->query(
+						"SELECT 
+							pmd.method pmdmet,
+							pmd.methodid pmdmetid
+						FROM paymentmethods_default pmd
+						ORDER BY pmd.methodid"
+					)) {
+						$defaultPaymentMethods = [];            
+						$i = 0;
+						while ($method = $defaultPaymentMethodsQuery->fetch_assoc()) {
+							$defaultPaymentMethods[$i] = '("'.$connection->real_escape_string($method['pmdmet']).'")';
+							$i++;
+						}            
+					} else {
+						throw new Exception($connection->error);
+					}
+					
+					$connection->begin_transaction();
+					
+					$insertUser = $connection->query(
+						"INSERT INTO
+							users 
+						VALUES (NULL, '$username', '$passwordHashed', '$email')");
 
+					$insertedUserId = $connection->insert_id;                
+
+					$incomeCategoriesIds = [];
+					$expenseCategoriesIds = [];
+					$paymentMethodsIds = [];
+
+					foreach($incomeDefaultCategories as $category) {
+						$insertIncomeCategories = $connection->query(
+							'INSERT INTO incomecategories (category) 
+							VALUES ('.$category.')'
+						);
+						if ($connection->errno == 1062) {                    
+							$insertIncomeCategories = true;
+						}
+						$incomeCategoriesIdsQuery = $connection->query(
+							"SELECT categoryid
+							FROM incomecategories
+							WHERE category=$category"
+						);
+						array_push($incomeCategoriesIds, $incomeCategoriesIdsQuery->fetch_assoc()['categoryid']);
+					}          
+					
+					foreach ($incomeCategoriesIds as $id) {
+						$insertUserIncomePair = $connection->query(
+							"INSERT INTO users_incomecategories
+							VALUES ($insertedUserId, $id)"
+						); 
+						if ($connection->errno == 1062) {                    
+							$insertUserIncomePair = true;
+						}
+					}
+
+					foreach($expenseDefaultCategories as $category) {
+						$insertExpenseCategories = $connection->query(
+							'INSERT INTO expensecategories (category) 
+							VALUES ('.$category.')'
+						);
+						if ($connection->errno == 1062) {
+							$insertExpenseCategories = true;
+						}
+						$expenseCategoriesIdsQuery = $connection->query(
+							"SELECT categoryid
+							FROM expensecategories
+							WHERE category=$category"
+						);
+						array_push($expenseCategoriesIds, $expenseCategoriesIdsQuery->fetch_assoc()['categoryid']);
+					}          
+					
+					foreach ($expenseCategoriesIds as $id) {
+						$insertUserExpensePair = $connection->query(
+							"INSERT INTO users_expensecategories
+							VALUES ($insertedUserId, $id)"
+						); 
+						if ($connection->errno == 1062) {                    
+							$insertUserIncomePair = true;
+						}
+					}            
+
+					foreach($defaultPaymentMethods as $method) {
+						$insertPaymentMethods = $connection->query(
+							'INSERT INTO paymentmethods (method) 
+							VALUES ('.$method.')'
+						);
+						if ($connection->errno == 1062) {                    
+							$insertPaymentMethods = true;
+						}
+						$paymentMethodsIdsQuery = $connection->query(
+							"SELECT methodid
+							FROM paymentmethods
+							WHERE method=$method"
+						);
+						array_push($paymentMethodsIds, $paymentMethodsIdsQuery->fetch_assoc()['methodid']);
+					}          
+					
+					foreach ($paymentMethodsIds as $id) {
+						$insertUserMethodPair = $connection->query(
+							"INSERT INTO users_paymentmethods
+							VALUES ($insertedUserId, $id)"
+						); 
+						if ($connection->errno == 1062) {                    
+							$insertUserMethodPair = true;
+						}
+					}
+			
+					if (gettype($incomeCategoriesIdsQuery) != 'boolean') $incomeCategoriesIdsQuery = true;
+					if (gettype($expenseCategoriesIdsQuery) != 'boolean') $expenseCategoriesIdsQuery = true;
+					if (gettype($paymentMethodsIdsQuery) != 'boolean') $paymentMethodsIdsQuery = true;
+
+					console($insertIncomeCategories);
+					console($incomeCategoriesIdsQuery);
+					console($insertUserIncomePair);
+					console('-');
+					console($insertExpenseCategories);
+					console($expenseCategoriesIdsQuery);
+					console($insertUserExpensePair);
+					console('-');
+					console($insertPaymentMethods);
+					console($paymentMethodsIdsQuery);
+					console($insertUserMethodPair);
+
+					if (!$insertUser 
+					|| !$insertIncomeCategories || !$incomeCategoriesIdsQuery || !$insertUserIncomePair
+					|| !$insertExpenseCategories || !$expenseCategoriesIdsQuery || !$insertUserExpensePair 
+					|| !$insertPaymentMethods || !$paymentMethodsIdsQuery || !$insertUserMethodPair) {
+						throw new Exception($connection->error);
+					}
+					else {
+						$_SESSION['isRegistrationSuccesful'] = true;
+						$_SESSION['username'] = $username;
+						$_SESSION['password'] = $password;
+						$connection->commit();
+						header('Location: witamy.php');
+					}					
+				}
 				$connection->close();
 			}
 		}
 		catch (Exception $e) {
-			console("Błąd serwera something something");
-			console($e);
+			$_SESSION['notfound'] = "Rejestracja nie powiodła się";
+        	header('Location: notfound.php');
 		}		
 	}
 
@@ -119,9 +274,8 @@
 
         // Buffering to solve problems frameworks, like header() in this and not a solid return.
         ob_start();
-
-        $output  = 'console.info(\'' . $context . ':\');';
-        $output .= 'console.log(' . json_encode($data) . ');';
+        
+        $output  = 'console.log(' . json_encode($data) . ');';
         $output  = sprintf('<script>%s</script>', $output);
 
         echo $output;
@@ -180,7 +334,7 @@
 
 					<div class="input-group mb-2 d-flex justify-content-center">
 						<input type="text" class="form-control text-center" placeholder="Nazwa użytkownika"
-						name="username"
+						name="username" autocomplete="off"
 						value = "<?php
 									echo (isset($username) && !isset($_SESSION['e_username'])) ? $username : '';
 								?>"> 
@@ -191,7 +345,6 @@
 							echo '<div class="text-invalid mx-auto">'.$_SESSION['e_username'].'</div>';
 							unset($_SESSION['e_username']);
 						}
-						//else if (isset($))
 					?>
 
                     <div class="input-group mt-2 mb-2 d-flex justify-content-center">
@@ -268,7 +421,7 @@
 						<div class="horizontal-line-80"></div>
 					</div>
 					<div class="d-flex flex-column justify-content-center">
-						<a class="text-center mb-2" href="Logowanie.html">Wróć do strony głównej</a>
+						<a class="text-center mb-2" href="Logowanie.php">Wróć do strony głównej</a>
 					</div>
 					
 				</div>

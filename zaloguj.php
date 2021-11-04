@@ -1,6 +1,13 @@
 <?php
     session_start();
 
+    if (isset($_SESSION['username']) || isset($_SESSION['password'])) {
+        $_POST['login'] = $_SESSION['username'];
+        $_POST['password'] = $_SESSION['password'];
+        unset($_SESSION['username']);
+        unset($_SESSION['password']);
+    }
+
     if( (!isset($_POST['login'])) || (!isset($_POST['password'])) ) {
         header('Location: Logowanie.php');
         exit();
@@ -10,10 +17,10 @@
     $connection = @new mysqli($host, $db_user, $db_password, $db_name);
 
     if ($connection->connect_errno != 0) {
-        $_SESSION['notfound'] = true;
+        $_SESSION['notfound'] = "Logowanie nie powiodło się";
         header('Location: notfound.php');
     }
-    else {
+    else {     
         $login = $_POST['login'];
         $password = $_POST['password'];
 
