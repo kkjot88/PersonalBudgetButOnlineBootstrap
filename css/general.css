@@ -161,3 +161,18 @@ a:hover {
 .accordion-body {
     border: 1px solid #2b2d34;
 }
+
+.text-invalid
+{
+    color: #ff0800 !important;
+}
+
+.border-bottom-1
+{
+    border-bottom: 1px solid #c0c0c0;
+}
+
+.border-bottom-1:hover
+{
+    border-bottom: 1px solid #ffffff;
+}

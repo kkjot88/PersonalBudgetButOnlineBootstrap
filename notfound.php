@@ -5,8 +5,6 @@
         header('Location: zaloguj.php');
         exit();
     }
-
-    unset($_SESSION['notfound']);
 ?>
 
 <!DOCTYPE html>
@@ -39,16 +37,24 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <link rel="stylesheet" href="css/general.css">
-    <link rel="stylesheet" href="css/nav.css">
-    <link rel="stylesheet" href="css/income-expense.css">
-    <link rel="stylesheet" href="css/modal.css">
-    <link rel="stylesheet" href="css/datepicker.css">
 
 </head>
-<body class="d-flex flex-column vh-100 align-items-center justify-content-center">
+<body class="d-flex flex-column vh-100 align-items-center justify-content-center">    
 
     <div class="mb-2"><strong class="fs-1">404 not found</strong></div>
-    <div class="mt-2"><a href="zaloguj.php" class="fs-3 text-decoration-underline">wróc do stronny logowania</a></div>
+
+    <div class="mb-2 fs-2 text-invalid">
+        <?php
+            echo $_SESSION['notfound'];            
+            unset($_SESSION['notfound']);
+        ?>
+    </div>
+
+    <div class="mt-2 pb-5 mb-5"><a href="Logowanie.php" class="fs-3 text-decoration-underline">wróc do stronny logowania</a></div>
 
 </body>
 </html>
+
+<?php
+    session_unset();
+?>

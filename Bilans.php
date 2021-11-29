@@ -5,7 +5,78 @@
         header('Location: Logowanie.php');
         exit();
     }
+
+    require_once "connect.php";
+    mysqli_report(MYSQLI_REPORT_STRICT);
+    
+    try {
+        $connection = new mysqli($host, $db_user, $db_password, $db_name);
+
+        if ($connection->connect_errno != 0) {
+            throw new Exception(mysqli_connect_errno());
+        }
+        else {            		
+            $currentUserId = $_SESSION['user']['userid'];
+            $today = new DateTime();
+            $firstDayOfCurrentMonth = date('Y-m-01', strtotime($today->format('Y-m-d')));
+            $lastDayOfCurrentMonth = date('Y-m-t', strtotime($today->format('Y-m-d')));            
+
+            //get sum of each income catogory for given user in given period
+            $sumOfEachIncomeCategoryQuery = $connection->query(
+                "SELECT 
+                    ic.category AS category,
+                    SUM(i.amount) AS amount
+                FROM incomes i
+                INNER JOIN incomecategories ic
+                USING (categoryid)
+                WHERE i.userid = {$currentUserId} AND i.date >= '{$firstDayOfCurrentMonth}' AND i.date <= '{$lastDayOfCurrentMonth}'
+                GROUP BY i.categoryid 
+                ORDER BY SUM(i.amount) DESC"
+            );
+
+            //get sum of each expense catogory for given user in given period
+            $sumOfEachExpenseCategoryQuery = $connection->query(
+                "SELECT 
+                    ec.category AS category,
+                    SUM(e.amount) AS amount
+                FROM expenses e
+                INNER JOIN expensecategories ec
+                USING (categoryid)
+                WHERE e.userid = {$currentUserId} AND e.date >= '{$firstDayOfCurrentMonth}' AND e.date <= '{$lastDayOfCurrentMonth}'
+                GROUP BY e.categoryid 
+                ORDER BY SUM(e.amount) DESC"
+            );            
+
+            if (gettype($sumOfEachIncomeCategoryQuery) != 'object' ||
+                gettype($sumOfEachExpenseCategoryQuery) != 'object') {
+                    throw new Exception(mysqli_connect_errno());
+            }
+            
+            $sumOfEachIncomeCategory = $sumOfEachIncomeCategoryQuery->fetch_all(MYSQLI_ASSOC);
+            $sumOfEachExpenseCategory = $sumOfEachExpenseCategoryQuery->fetch_all(MYSQLI_ASSOC);
+
+            $connection->close();
+        }
+	} 
+    catch (Exception $e) {
+        echo "shieeeeeet";
+        exit();
+	}
+
+    //-----------------debug-function-----------------------
+    function console($data, $context = '') {
+
+        // Buffering to solve problems frameworks, like header() in this and not a solid return.
+        ob_start();
+
+        $output  = 'console.log(' . json_encode($data) . ');';
+        $output  = sprintf('<script>%s</script>', $output);
+
+        echo $output;
+    }
+    //------------------------------------------------------
 ?>
+
 <!DOCTYPE html>
 <html lang="pl">
 
@@ -89,6 +160,7 @@
                         $('#datepicker-from').datepicker('clearDates');
                         $('#datepicker-to').datepicker('clearDates');
                         $(".datepicker-button").addClass("d-none");
+                        $("#dates").submit();
                         break;
                     case '2':
                         disableDateinput("from");
@@ -224,13 +296,13 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
                             <hr class="mt-0 mb-2">
-                            <a href="Przychody.html" type="button"
+                            <a href="Przychody.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 przychód</a>
-                            <a href="Wydatki.html" type="button"
+                            <a href="Wydatki.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
                                 wydatek</a>
-                            <a href="Bilans.html" type="button"
+                            <a href="Bilans.php" type="button"
                                 class="btn btn-nav shadow-none rounded-0 text-start active"
                                 aria-pressed="true">Przeglądaj
                                 bilans</a>
@@ -248,7 +320,7 @@
                                         manage_accounts
                                     </i>
                                 </a>
-                                <a href="Logowanie.html" class="d-flex">
+                                <a href="Logowanie.php" class="d-flex">
                                     <i class="material-icons fs-1">
                                         logout
                                     </i>
@@ -269,11 +341,11 @@
                     <div class="vr vr-40px"></div>
 
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="Navigation buttons">
-                        <a href="Przychody.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                        <a href="Przychody.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Wydatki.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
+                        <a href="Wydatki.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
-                        <a href="Bilans.html" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
+                        <a href="Bilans.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
                             aria-pressed="true">Przeglądaj bilans</a>
                     </div>
 
@@ -308,17 +380,17 @@
             <hr class="me-3">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li>
-                    <a href="Przychody.html" class="nav-link mb-2 me-2">
+                    <a href="Przychody.php" class="nav-link mb-2 me-2">
                         Dodaj przychód
                     </a>
                 </li>
                 <li>
-                    <a href="Wydatki.html" class="nav-link mb-2 me-2">
+                    <a href="Wydatki.php" class="nav-link mb-2 me-2">
                         Dodaj wydatek
                     </a>
                 </li>
                 <li>
-                    <a href="Bilans.html" class="nav-link active" aria-current="page">
+                    <a href="Bilans.php" class="nav-link active" aria-current="page">
                         Przeglądaj bilans
                     </a>
                 </li>
@@ -343,7 +415,7 @@
     </nav>
 
     <main class="d-flex flex-column">
-        <div class="pt-2 pt-sm-3 pt-md-3 ps-lg-5 pt-lg-5 mx-auto mx-lg-0" id="dates">
+        <form class="pt-2 pt-sm-3 pt-md-3 ps-lg-5 pt-lg-5 mx-auto mx-lg-0" id="dates">
             <div class="d-flex align-items-md-center flex-column flex-md-row fs-5 p-0">
                 <div class="d-flex flex-column flex-sm-row align-items-center mx-auto mx-lg-0">
                     <label for="period" class="text-nowrap m-0 me-sm-2">Okres bilansu:</label>
@@ -379,7 +451,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
         <div class="d-flex">
             <div class="accordion col-12 col-md-5 col-xl-4 p-1 pt-2 p-sm-2 pt-sm-3 p-md-3 p-lg-5 pt-lg-3 pe-lg-3"
                 id="balance-accordion">
@@ -401,24 +473,18 @@
                                         <th scope="col">Suma:</th>
                                     </tr>
                                 </thead>
+                                
                                 <tbody>
-                                    <tr>
-                                        <td>Wynagrodzenie</td>
-                                        <td>5000zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Odsetki bankowe</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sprzedaż na allegro</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Inne</td>
-                                        <td>300zł</td>
-                                    </tr>
+                                    <?php
+                                        foreach ($sumOfEachIncomeCategory as $row) {
+                                            echo '<tr>';
+                                            echo    '<td>'.$row['category'].'</td>';
+                                            echo    '<td>'.str_replace('.',',',$row['amount']).'zł</td>';
+                                            echo '</tr>';
+                                        }
+                                    ?>
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -442,66 +508,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Jedzenie</td>
-                                        <td>1000zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Mieszkanie</td>
-                                        <td>1500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Transport</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Telekomunikacja</td>
-                                        <td>100zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Ubranie</td>
-                                        <td>200zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dzieci</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Rozrywka</td>
-                                        <td>200zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Wycieczki</td>
-                                        <td>2200zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Szkolenia</td>
-                                        <td>8000zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Książki</td>
-                                        <td>40zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Oszczędności</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Emerytura</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Spłata długów</td>
-                                        <td>500zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Darowizna</td>
-                                        <td>5zł</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Inne wydatki</td>
-                                        <td>130zł</td>
-                                    </tr>
+                                    <?php
+                                        foreach ($sumOfEachExpenseCategory as $row) {
+                                            echo '<tr>';
+                                            echo    '<td>'.$row['category'].'</td>';
+                                            echo    '<td>'.str_replace('.',',',$row['amount']).'zł</td>';
+                                            echo '</tr>';
+                                        }
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
@@ -668,12 +682,12 @@
     });
 
     $(function () {
-        var dateInputFormatingFrom = new Cleave('#from', {
+        /*var dateInputFormatingFrom = new Cleave('#from', {
             date: true,
             delimiter: '.',
             numeralDecimalMark: ',',
             datePattern: ['d', 'm', 'Y']
-        });
+        });*/
 
         var dateInputFormatingTo = new Cleave('#to', {
             date: true,
@@ -694,21 +708,14 @@
                 { label: 'Suma', type: 'number' },
                 { type: 'string', role: 'tooltip' }
             ],
-            ['Jedzenie', 1000, 'zł'],
-            ['Mieszkanie', 1500, 'zł'],
-            ['Transport', 500, 'zł'],
-            ['Telekomunikacja', 100, 'zł'],
-            ['Ubranie', 200, 'zł'],
-            ['Dzieci', 500, 'zł'],
-            ['Rozrywka', 200, 'zł'],
-            ['Wycieczki', 2200, 'zł'],
-            ['Szkolenia', 8000, 'zł'],
-            ['Książki', 40, 'zł'],
-            ['Oszczędności', 500, 'zł'],
-            ['Emerytura', 500, 'zł'],
-            ['Spłata długów', 500, 'zł'],
-            ['Darowizna', 5, 'zł'],
-            ['Inne wydatki', 130, 'zł']
+            <?php
+                foreach($sumOfEachExpenseCategory as $dataRow) {
+                    echo
+                        '[\''.$dataRow['category'].'\', '.
+                        $dataRow['amount'].
+                        ', \'zł\'],';
+                }
+            ?>
         ]);
         data.addColumn({ type: 'string', role: 'tooltip' });
 
