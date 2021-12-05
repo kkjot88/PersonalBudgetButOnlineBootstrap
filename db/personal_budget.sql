@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 02 Gru 2021, 15:08
+-- Czas generowania: 06 Gru 2021, 16:45
 -- Wersja serwera: 10.4.21-MariaDB
 -- Wersja PHP: 8.0.11
 
@@ -33,15 +33,6 @@ CREATE TABLE `expensecategories` (
   `categoryid` int(11) NOT NULL,
   `category` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
---
--- Zrzut danych tabeli `expensecategories`
---
-
-INSERT INTO `expensecategories` (`categoryid`, `category`) VALUES
-(70, 'Jedzenie'),
-(71, 'Mieszkanie'),
-(72, 'Inne wydatki');
 
 -- --------------------------------------------------------
 
@@ -79,17 +70,6 @@ CREATE TABLE `expenses` (
   `comment` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
 
---
--- Zrzut danych tabeli `expenses`
---
-
-INSERT INTO `expenses` (`expenseid`, `userid`, `amount`, `date`, `methodid`, `categoryid`, `comment`) VALUES
-(40, 239, '1.00', '2021-12-02', 16, 70, '1'),
-(41, 239, '1.00', '2021-12-02', 16, 71, '1'),
-(42, 239, '1.00', '2021-12-02', 16, 72, '1'),
-(43, 239, '1.00', '2021-12-02', 17, 70, '1'),
-(44, 239, '3.00', '2021-12-02', 19, 72, '3');
-
 -- --------------------------------------------------------
 
 --
@@ -100,16 +80,6 @@ CREATE TABLE `incomecategories` (
   `categoryid` int(11) NOT NULL,
   `category` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
---
--- Zrzut danych tabeli `incomecategories`
---
-
-INSERT INTO `incomecategories` (`categoryid`, `category`) VALUES
-(56, 'Odsetki bankowe'),
-(57, 'Sprzedaż na allegro'),
-(58, 'Inne'),
-(59, 'Wynagrodzenie');
 
 -- --------------------------------------------------------
 
@@ -147,25 +117,6 @@ CREATE TABLE `incomes` (
   `comment` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
 
---
--- Zrzut danych tabeli `incomes`
---
-
-INSERT INTO `incomes` (`incomeid`, `userid`, `amount`, `date`, `categoryid`, `comment`) VALUES
-(51, 240, '535.00', '2021-11-29', 56, '55'),
-(52, 239, '5.00', '1970-01-01', 56, '135'),
-(53, 239, '531.00', '1970-01-01', 56, '13515'),
-(54, 239, '111.40', '1970-01-01', 56, '34'),
-(55, 239, '5.00', '2021-12-01', 56, '5'),
-(56, 239, '3.00', '2021-12-01', 56, '55'),
-(57, 239, '414.00', '2021-12-01', 58, ''),
-(58, 239, '53.00', '2021-12-02', 56, '355'),
-(59, 239, '3.00', '2021-12-02', 57, '434'),
-(60, 239, '0.00', '2021-12-02', 56, ''),
-(61, 239, '0.00', '2021-12-02', 56, ''),
-(62, 239, '0.00', '2021-12-02', 56, ''),
-(63, 239, '0.00', '2021-12-02', 56, '');
-
 -- --------------------------------------------------------
 
 --
@@ -176,16 +127,6 @@ CREATE TABLE `paymentmethods` (
   `methodid` int(11) NOT NULL,
   `method` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
---
--- Zrzut danych tabeli `paymentmethods`
---
-
-INSERT INTO `paymentmethods` (`methodid`, `method`) VALUES
-(16, 'Karta kredytowa'),
-(17, 'Gotówka'),
-(18, 'Karta debetowa'),
-(19, 'Inne');
 
 -- --------------------------------------------------------
 
@@ -221,17 +162,6 @@ CREATE TABLE `users` (
   `email` text COLLATE utf8_polish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
 
---
--- Zrzut danych tabeli `users`
---
-
-INSERT INTO `users` (`userid`, `name`, `password`, `email`) VALUES
-(237, 'karol', '$2y$10$OfGYG/nxEbKblrvJlH5Gq.LTHc2YxEEQzLPR2IBV/f6Fveg6n/M2m', 'karol@jan.oszek'),
-(238, 'kolejny', '$2y$10$UlSvam2IE8U6BnYSmkTXsu1AiFACOh4Pku8S.VsrIPekwYfGPJXyS', 'test@udany.copium'),
-(239, 'kjot', '$2y$10$mCBElExNLlGaZ84BWJCVcO2436w3U7IRZ7HticeT2vUyoRaj95aJK', 'k@jot.ja'),
-(240, 'teraz', '$2y$10$fCkr57Z3kjixvRnWbTytA.59B.MT3YXIL3AXuzmlujsAJAdtRsyDi', 'bd@wieksz.chyba'),
-(241, 'kajot', '$2y$10$BUblNv3a5thUqIvM8Y1v3.iQBiDYMwPLFHIT7zeKFd78yD2ZYYcpS', 'jot@jot.jot');
-
 -- --------------------------------------------------------
 
 --
@@ -242,27 +172,6 @@ CREATE TABLE `users_expensecategories` (
   `userid` int(11) NOT NULL,
   `categoryid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
---
--- Zrzut danych tabeli `users_expensecategories`
---
-
-INSERT INTO `users_expensecategories` (`userid`, `categoryid`) VALUES
-(237, 70),
-(237, 71),
-(237, 72),
-(238, 70),
-(238, 71),
-(238, 72),
-(239, 70),
-(239, 71),
-(239, 72),
-(240, 70),
-(240, 71),
-(240, 72),
-(241, 70),
-(241, 71),
-(241, 72);
 
 -- --------------------------------------------------------
 
@@ -275,29 +184,6 @@ CREATE TABLE `users_incomecategories` (
   `categoryid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
 
---
--- Zrzut danych tabeli `users_incomecategories`
---
-
-INSERT INTO `users_incomecategories` (`userid`, `categoryid`) VALUES
-(237, 56),
-(237, 57),
-(237, 58),
-(238, 56),
-(238, 57),
-(238, 58),
-(239, 56),
-(239, 57),
-(239, 58),
-(240, 56),
-(240, 57),
-(240, 58),
-(240, 59),
-(241, 56),
-(241, 57),
-(241, 58),
-(241, 59);
-
 -- --------------------------------------------------------
 
 --
@@ -308,32 +194,6 @@ CREATE TABLE `users_paymentmethods` (
   `userid` int(11) NOT NULL,
   `methodid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
---
--- Zrzut danych tabeli `users_paymentmethods`
---
-
-INSERT INTO `users_paymentmethods` (`userid`, `methodid`) VALUES
-(237, 16),
-(237, 17),
-(237, 18),
-(237, 19),
-(238, 16),
-(238, 17),
-(238, 18),
-(238, 19),
-(239, 16),
-(239, 17),
-(239, 18),
-(239, 19),
-(240, 16),
-(240, 17),
-(240, 18),
-(240, 19),
-(241, 16),
-(241, 17),
-(241, 18),
-(241, 19);
 
 --
 -- Indeksy dla zrzutów tabel
@@ -433,7 +293,7 @@ ALTER TABLE `users_paymentmethods`
 -- AUTO_INCREMENT dla tabeli `expensecategories`
 --
 ALTER TABLE `expensecategories`
-  MODIFY `categoryid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `categoryid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `expensecategories_default`
@@ -445,13 +305,13 @@ ALTER TABLE `expensecategories_default`
 -- AUTO_INCREMENT dla tabeli `expenses`
 --
 ALTER TABLE `expenses`
-  MODIFY `expenseid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `expenseid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `incomecategories`
 --
 ALTER TABLE `incomecategories`
-  MODIFY `categoryid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `categoryid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `incomecategories_default`
@@ -463,13 +323,13 @@ ALTER TABLE `incomecategories_default`
 -- AUTO_INCREMENT dla tabeli `incomes`
 --
 ALTER TABLE `incomes`
-  MODIFY `incomeid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `incomeid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `paymentmethods`
 --
 ALTER TABLE `paymentmethods`
-  MODIFY `methodid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `methodid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT dla tabeli `paymentmethods_default`
@@ -481,7 +341,7 @@ ALTER TABLE `paymentmethods_default`
 -- AUTO_INCREMENT dla tabeli `users`
 --
 ALTER TABLE `users`
-  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=242;
+  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Ograniczenia dla zrzutów tabel

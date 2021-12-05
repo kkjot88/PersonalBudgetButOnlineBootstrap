@@ -41,11 +41,13 @@
                 }
                 else {
                     $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";
+                    $_SESSION['login'] = $login;
                     header('Location: Logowanie.php');
                 }          
             }
             else {
                 $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";
+                $_SESSION['login'] = $login;
                 header('Location: Logowanie.php');
             }
         }
@@ -53,13 +55,12 @@
     }
 
     //-----------------debug-function-----------------------
-    function console($data, $context = 'Debug in Console') {
+    function console($data, $context = '') {
 
         // Buffering to solve problems frameworks, like header() in this and not a solid return.
         ob_start();
 
-        $output  = 'console.info(\'' . $context . ':\');';
-        $output .= 'console.log(' . json_encode($data) . ');';
+        $output  = 'console.log(' . json_encode($data) . ');';
         $output  = sprintf('<script>%s</script>', $output);
 
         echo $output;

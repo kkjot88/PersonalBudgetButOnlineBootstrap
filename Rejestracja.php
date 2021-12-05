@@ -26,7 +26,7 @@
 
 		if ((filter_var($email, FILTER_VALIDATE_EMAIL)==false) || ($email != $emailPreSanitization)) {		
 			$isValid = false;
-			$_SESSION['e_email'] = "Adres email musi składać się tylko z liter i cyfr (bez polskich znaków) oraz @";
+			$_SESSION['e_email'] = "Nieprawidłowy adres email";
 		}	
 
 		if ((strlen($password) < 3) || (strlen($password) > 20)) {
@@ -232,19 +232,7 @@
 			
 					if (gettype($incomeCategoriesIdsQuery) != 'boolean') $incomeCategoriesIdsQuery = true;
 					if (gettype($expenseCategoriesIdsQuery) != 'boolean') $expenseCategoriesIdsQuery = true;
-					if (gettype($paymentMethodsIdsQuery) != 'boolean') $paymentMethodsIdsQuery = true;
-
-					console($insertIncomeCategories);
-					console($incomeCategoriesIdsQuery);
-					console($insertUserIncomePair);
-					console('-');
-					console($insertExpenseCategories);
-					console($expenseCategoriesIdsQuery);
-					console($insertUserExpensePair);
-					console('-');
-					console($insertPaymentMethods);
-					console($paymentMethodsIdsQuery);
-					console($insertUserMethodPair);
+					if (gettype($paymentMethodsIdsQuery) != 'boolean') $paymentMethodsIdsQuery = true;		
 
 					if (!$insertUser 
 					|| !$insertIncomeCategories || !$incomeCategoriesIdsQuery || !$insertUserIncomePair
@@ -270,7 +258,7 @@
 	}
 
 	//-----------------debug-function-----------------------
-    function console($data, $context = 'Debug in Console') {
+    function console($data, $context = '') {
 
         // Buffering to solve problems frameworks, like header() in this and not a solid return.
         ob_start();
@@ -335,8 +323,8 @@
 					<div class="input-group mb-2 d-flex justify-content-center">
 						<input type="text" class="form-control text-center" placeholder="Nazwa użytkownika"
 						name="username" autocomplete="off"
-						value = "<?php
-									echo (isset($username) && !isset($_SESSION['e_username'])) ? $username : '';
+						value = "<?php									
+									echo (isset($username)) ? $username : '';
 								?>"> 
 					</div>					
 
@@ -351,7 +339,7 @@
 						<input type="text" class="form-control text-center" placeholder="Adres email"
 						name="email"
 						value = "<?php
-									echo (isset($email) && !isset($_SESSION['e_email'])) ? $email : '';
+									echo (isset($email)) ? $email : '';
 								?>"> 
 					</div>
 

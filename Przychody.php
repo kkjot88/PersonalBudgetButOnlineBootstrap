@@ -6,7 +6,8 @@
         exit();
     }
     
-    $userid = $_SESSION['user']['userid'];      
+    $userid = $_SESSION['user']['userid'];
+    $username = $_SESSION['user']['name'];     
 
     require_once "connect.php";
     mysqli_report(MYSQLI_REPORT_STRICT);
@@ -36,8 +37,6 @@
     catch (Exception $e) {
         $_SESSION['notfound'] = "Operacja nie powiodła się";
         header('Location: notfound.php');
-        console("Błąd serwera something something");
-        console($e);
 	}	
 
     //-----------------debug-function-----------------------
@@ -150,18 +149,17 @@
                         <div class="btn-group flex-column w-100" role="group" aria-label="First group">
                             <hr class="mt-0 mb-2">
                             <a href="Przychody.php" type="button"
-                                class="btn btn-nav shadow-none rounded-0 text-start active" aria-pressed="true">Dodaj
-                                przychód</a>
+                                class="btn btn-nav shadow-none rounded-0 text-start active" aria-pressed="true">Dodaj przychód</a>
                             <a href="Wydatki.php" type="button"
-                                class="btn btn-nav shadow-none rounded-0 text-start">Dodaj
-                                wydatek</a>
+                                class="btn btn-nav shadow-none rounded-0 text-start">Dodaj wydatek</a>
                             <a href="Bilans.php" type="button"
-                                class="btn btn-nav shadow-none rounded-0 text-start">Przeglądaj
-                                bilans</a>
+                                class="btn btn-nav shadow-none rounded-0 text-start">Przeglądaj bilans</a>
                             <hr class="mt-2 mb-2">
                             <div class="d-flex mb-2 align-items-center">
                                 <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle">
-                                <span class="ms-2 me-auto">Default user</span>
+                                <span class="ms-2 me-auto"><?php
+                                    echo $username;
+                                ?></span>
                                 <a href="#" class="d-flex pe-3">
                                     <i class="material-icons fs-1">
                                         settings
@@ -194,7 +192,7 @@
 
                     <div class="btn-group justify-self-left me-auto" role="group" aria-label="Navigation buttons">
                         <a href="Przychody.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3 active"
-                            aria-pressed="true">Dodaj wydatek</a>
+                            aria-pressed="true">Dodaj przychód</a>
                         <a href="Wydatki.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Dodaj
                             wydatek</a>
                         <a href="Bilans.php" type="button" class="btn btn-nav rounded-0 m-0 pb-3 pt-3">Przeglądaj
@@ -209,7 +207,9 @@
                         <a href="#" class="d-flex align-items-center dropdown-toggle flex-row-reverse " id="user-md"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle ms-2">
-                            <span class="me-auto">Default user</span>
+                            <span class="me-auto"><?php
+                                echo $username;
+                            ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2" aria-labelledby="user-md">
                             <li><a class="dropdown-item p-1" href="#">Ustawienia</a></li>
@@ -253,7 +253,9 @@
                 <a href="#" class="d-flex align-items-center dropdown-toggle pe-2 me-3" id="user-lg"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <img src="img/default-user.png" alt="" width="32" height="32" class="rounded-circle me-2">
-                    <span class="me-auto">Default user</span>
+                    <span class="me-auto"><?php
+                        echo $username;
+                    ?></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-2" aria-labelledby="user-lg">
                     <li><a class="dropdown-item p-1" href="#">Ustawienia</a></li>
@@ -286,7 +288,12 @@
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <div class="input-group">
-                        <input type="text" class="form-control align-self-center" id="amount" name="amount" autocomplete="off">
+                        <input type="text" class="form-control align-self-center" id="amount" name="amount" autocomplete="off"
+                        value="<?php
+                            echo (isset($_SESSION['amount'])) ? $_SESSION['amount'] : "";
+                            unset($_SESSION['amount'])
+                        ?>"
+                        >
                         <span class="input-group-text">zł</span>
                     </div>
                 </div>
@@ -296,8 +303,11 @@
             echo (isset($_SESSION['e_amount'])) ?
             '<div class="row justify-content-center justify-content-md-start">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
-                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
-                    <span class="form-label align-self-center m-0 fs-5 fs-md-4 text-invalid">'.
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0 justify-content-center justify-content-lg-start">
+                    <span class="d-lg-none form-label m-0 fs-5 text-invalid">'.
+                        $_SESSION['e_amount'].
+                    '</span>
+                    <span class="d-none d-lg-inline form-label m-0 fs-5 text-invalid text-nowrap">'.
                         $_SESSION['e_amount'].
                     '</span>
                 </div>
@@ -305,7 +315,7 @@
             unset($_SESSION['e_amount']);
             ?>
 
-            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-3">
+            <div class="row justify-content-center justify-content-md-start pt-md-2 pb-2">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="date" class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">
                         Data:
@@ -313,7 +323,11 @@
                 </div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
                     <div class="input-group">
-                        <input type="text" class="form-control align-self-center" id="date" name="date" autocomplete="off">
+                        <input type="text" class="form-control align-self-center" id="date" name="date" autocomplete="off"
+                        value="<?php 
+                            echo (isset($_SESSION['date'])) ? $_SESSION['date'] : "";
+                        ?>"                        
+                        >
                         <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date" class="input-group-text p-0" id="datepicker-button">
                             <i class="material-icons p-calendar">
                                 edit_calendar
@@ -322,7 +336,24 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center justify-content-md-start pb-3">
+
+            <?php 
+            echo (isset($_SESSION['e_date'])) ?
+            '<div class="row justify-content-center justify-content-md-start">
+                <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
+                <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0 justify-content-center justify-content-lg-start">
+                    <span class="d-lg-none form-label m-0 fs-5 text-invalid">'.
+                        $_SESSION['e_date'].
+                    '</span>
+                    <span class="d-none d-lg-inline form-label m-0 fs-5 text-invalid text-nowrap">'.
+                        $_SESSION['e_date'].
+                    '</span>
+                </div>
+            </div>' : ''; 
+            unset($_SESSION['e_date']);
+            ?>
+
+            <div class="row justify-content-center justify-content-md-start pt-2 pb-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2">
                     <label for="income-category"
                         class="form-label align-self-center m-0 ms-md-auto me-auto me-md-0 fs-5 fs-md-4">Wybierz
@@ -357,10 +388,10 @@
             <div class="row justify-content-center justify-content-md-start pb-3">
                 <div class="col-10 col-md-5 col-lg-4 col-xl-3 d-flex p-0 pe-2"></div>
                 <div class="col-10 col-md-6 col-lg-4 col-xl-3 d-flex p-0">
-                    <button type="submit" class="btn btn-primary shadow-none w-50 me-2">
+                    <button type="submit" class="btn btn-primary shadow-none w-50 me-2" name="add-button">
                         <strong>Dodaj</strong>
                     </button>
-                    <button class="btn shadow-none btn-primary w-50">
+                    <button class="btn shadow-none btn-primary w-50" name="cancel-button">
                         <strong>Anuluj</strong>
                     </button>
                 </div>
@@ -382,15 +413,21 @@
         success ? successModal.show() : successModal.hide();
 
         var modal = new bootstrap.Modal($('#pick-date'));
-        //var today = new Date().toLocaleDateString('pl-PL');
-        var today = new Date().toLocaleDateString();
+        var today = new Date().toLocaleDateString('pl-PL', {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
 
-        $('#date').val(today);
+        dateFromPHP = <?php
+            echo (isset($_SESSION['date'])) ? "true" : "false";
+            unset($_SESSION['date']);
+        ?>;
 
-        console.log(today);
+        if (!dateFromPHP) $('#date').val(today);
 
         $('#datepicker-modal-body').datepicker({
-            //language: 'pl',
+            language: 'pl',
             todayHighlight: 'true',
         });
 
@@ -409,15 +446,13 @@
             numeralDecimalMark: ',',
             numeralThousandsGroupStyle: 'thousand'
         });
-        /*
+        
         var dateInputFormating = new Cleave('#date', {
             date: true,
             delimiter: '.',
-            numeralDecimalMark: ',',
             datePattern: ['d', 'm', 'Y']            
-        });*/
+        });
 
-        console.log(dateInputFormating);
     });
 
 </script>

@@ -116,3 +116,8 @@ main td {
   color: #c0c0c0;
   border: 1px solid #2b2d34;
 }
+
+.empty-piechart
+{
+  color: green;
+}

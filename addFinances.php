@@ -4,16 +4,32 @@
     if (!isset($_POST['type'])) {
         header('Location: Przychody.php');
         exit();
-    }
-    
+    }    
+
     $isValid = true;
 
     $userid = $_SESSION['user']['userid'];      
     $type = $_POST['type'];
+
+    if (isset($_POST['cancel-button'])) {
+        ($type == "income") ? header('Location: Przychody.php') : header('Location: Wydatki.php');     
+        exit();
+    }
+    
+    if ($_POST['amount'] <= 0 || $_POST['amount'] == "") {
+        $_SESSION['amount'] = $_POST['amount'];
+        $_SESSION['e_amount'] = "Proszę podać wartość dodatnią";
+        $isValid = false;   
+    }
     $amount = str_replace(',','.',$_POST['amount']);
+    $amount = str_replace(' ','',$amount);
+    if ($_POST['date'] == "") {
+        $_SESSION['date'] = $_POST['date'];
+        $_SESSION['e_date'] = "Proszę podać datę";
+        $isValid = false;  
+    }    
     $date = date("Y-m-d", strtotime($_POST['date']));
     $method = (isset($_POST['method'])) ? $_POST['method'] : '';
-
     if (isset($_POST['income-category'])) {
         $categoryName = $_POST['income-category'];
         $categoryTable = 'incomecategories';
@@ -33,19 +49,19 @@
             break;
     }
 
+    if (!$isValid) {        
+        ($type == "income") ? header('Location: Przychody.php') : header('Location: Wydatki.php');     
+        exit();
+    }
+
     require_once "connect.php";
     mysqli_report(MYSQLI_REPORT_STRICT);
-
-    //neccessity of this flag to be considered. Might not be need if 'amount' input is the only to be checked for validity.
-    if (!$isValid) {
-        exit();
-    }    
     
     try {
         $connection = new mysqli($host, $db_user, $db_password, $db_name);
 
         if ($connection->connect_errno != 0) {
-            throw new Exception(mysqli_connect_errno());
+            throw new Exception($connection->error);
         }
         else {            
             if ($method == '') {
@@ -82,8 +98,6 @@
     catch (Exception $e) {
         $_SESSION['notfound'] = "Operacja nie powiodła się";
         header('Location: notfound.php');
-        console("Błąd serwera something something");
-        console($e);
 	}	
 
     //-----------------debug-function-----------------------

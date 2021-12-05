@@ -33,14 +33,6 @@
 	<link rel="stylesheet" href="css/loginRegister.css">
 	
 	<script src="js/bootstrap/bootstrap.bundle.min.js"></script>	
-
-	<script>
-		var loginErrorMsg = "<?php echo $loginErrorMsg; ?>";
-		if (loginErrorMsg) {
-			//do stuff
-			console.log(loginErrorMsg);
-		}
-	</script>
 	
 </head>
 <body class="d-flex flex-column align-content-center">	
@@ -58,7 +50,11 @@
 				<div class="col-sm-12">
 
 					<div class="input-group mb-4 d-flex justify-content-center">
-						<input type="text" name="login" class="form-control text-center" autocomplete="off" placeholder="Nazwa użytkownika"> 
+						<input type="text" name="login" class="form-control text-center" autocomplete="off" placeholder="Nazwa użytkownika"
+						value = "<?php									
+									echo (isset($_SESSION['login'])) ? $_SESSION['login'] : '';
+									unset($_SESSION['login']);
+								?>">
 					</div>
 
 					<div class="input-group mb-4 d-flex justify-content-center">
