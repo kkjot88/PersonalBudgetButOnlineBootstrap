@@ -41,11 +41,13 @@
                 }
                 else {
                     $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";
+                    $_SESSION['login'] = $login;
                     header('Location: Logowanie.php');
                 }          
             }
             else {
                 $_SESSION['loginErrorMsg'] = "Nieprawidłowy login lub hasło";
+                $_SESSION['login'] = $login;
                 header('Location: Logowanie.php');
             }
         }

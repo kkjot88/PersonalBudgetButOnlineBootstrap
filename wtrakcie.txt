@@ -8,9 +8,6 @@ addFinances.php
 	bilans
 -podstawowe zapytania zrobione, dokonczyc wyswietlanie wynikow zapytan i inne rzeczy co wyjda po drodze
 	//zrobione wyswietlanie dla obecnego miesiaca
-		--cleave nie chce do konca dzialac z formatem daty, przydalo by sie sprawdzic
-
-
 
 		!!!!!!
 		-button anuluj w przychody/wydatki tez dodaje zamiast cancelowac

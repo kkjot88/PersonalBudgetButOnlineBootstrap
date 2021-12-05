@@ -4,77 +4,7 @@
     if (!isset($_SESSION['isLoggedIn'])) {
         header('Location: Logowanie.php');
         exit();
-    }
-
-    require_once "connect.php";
-    mysqli_report(MYSQLI_REPORT_STRICT);
-    
-    try {
-        $connection = new mysqli($host, $db_user, $db_password, $db_name);
-
-        if ($connection->connect_errno != 0) {
-            throw new Exception(mysqli_connect_errno());
-        }
-        else {            		
-            $currentUserId = $_SESSION['user']['userid'];
-            $today = new DateTime();
-            $firstDayOfCurrentMonth = date('Y-m-01', strtotime($today->format('Y-m-d')));
-            $lastDayOfCurrentMonth = date('Y-m-t', strtotime($today->format('Y-m-d')));            
-
-            //get sum of each income catogory for given user in given period
-            $sumOfEachIncomeCategoryQuery = $connection->query(
-                "SELECT 
-                    ic.category AS category,
-                    SUM(i.amount) AS amount
-                FROM incomes i
-                INNER JOIN incomecategories ic
-                USING (categoryid)
-                WHERE i.userid = {$currentUserId} AND i.date >= '{$firstDayOfCurrentMonth}' AND i.date <= '{$lastDayOfCurrentMonth}'
-                GROUP BY i.categoryid 
-                ORDER BY SUM(i.amount) DESC"
-            );
-
-            //get sum of each expense catogory for given user in given period
-            $sumOfEachExpenseCategoryQuery = $connection->query(
-                "SELECT 
-                    ec.category AS category,
-                    SUM(e.amount) AS amount
-                FROM expenses e
-                INNER JOIN expensecategories ec
-                USING (categoryid)
-                WHERE e.userid = {$currentUserId} AND e.date >= '{$firstDayOfCurrentMonth}' AND e.date <= '{$lastDayOfCurrentMonth}'
-                GROUP BY e.categoryid 
-                ORDER BY SUM(e.amount) DESC"
-            );            
-
-            if (gettype($sumOfEachIncomeCategoryQuery) != 'object' ||
-                gettype($sumOfEachExpenseCategoryQuery) != 'object') {
-                    throw new Exception(mysqli_connect_errno());
-            }
-            
-            $sumOfEachIncomeCategory = $sumOfEachIncomeCategoryQuery->fetch_all(MYSQLI_ASSOC);
-            $sumOfEachExpenseCategory = $sumOfEachExpenseCategoryQuery->fetch_all(MYSQLI_ASSOC);
-
-            $connection->close();
-        }
-	} 
-    catch (Exception $e) {
-        echo "shieeeeeet";
-        exit();
-	}
-
-    //-----------------debug-function-----------------------
-    function console($data, $context = '') {
-
-        // Buffering to solve problems frameworks, like header() in this and not a solid return.
-        ob_start();
-
-        $output  = 'console.log(' . json_encode($data) . ');';
-        $output  = sprintf('<script>%s</script>', $output);
-
-        echo $output;
-    }
-    //------------------------------------------------------
+    }    
 ?>
 
 <!DOCTYPE html>
@@ -114,13 +44,21 @@
 
     <script>
 
+        var incomesObj;
+        var expensesObj;
+        var incomesTotal;
+        var expensesTotal;
+        var balanceFinal;
+
         var todayDate = new Date();
-        var firstDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toLocaleDateString('pl');
-        var lastDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).toLocaleDateString('pl');
-        var firstDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1).toLocaleDateString('pl');
-        var lastDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0).toLocaleDateString('pl');
-        var firstDayOfCurrentYear = new Date(todayDate.getFullYear(), 0, 1).toLocaleDateString('pl');
-        var lastDayOfCurrentYear = new Date(todayDate.getFullYear() + 1, 0, 0).toLocaleDateString('pl');
+        var firstDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
+        var lastDayOfCurrentMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
+        var firstDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1).toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
+        var lastDayOfPreviousMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0).toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
+        var firstDayOfCurrentYear = new Date(todayDate.getFullYear(), 0, 1).
+        toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
+        var lastDayOfCurrentYear = new Date(todayDate.getFullYear() + 1, 0, 0).
+        toLocaleDateString('pl-PL', {year: "numeric", month: "2-digit", day: "2-digit"});
 
         $(function () {
 
@@ -140,6 +78,22 @@
             $('#from').val(firstDayOfCurrentMonth);
             $('#to').val(lastDayOfCurrentMonth);
 
+            $(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "bilansBackend.php",
+                    data: $("#dates").serialize(),
+                        success: function(data) {
+                            incomesObj = JSON.parse(data.split("]")[0]+']');
+                            expensesObj = JSON.parse(data.split("]")[1]+']');
+                            updateFinancesInAccordion(incomesObj,"#incomes-table");
+                            updateFinancesInAccordion(expensesObj,"#expenses-table");
+                            calculateBalance();
+                        }
+                });
+                return false;
+            });   
+
             $('#period').on('change', () => {
                 let selectedOption = $("option:selected", this).val();
                 switch (selectedOption) {
@@ -151,6 +105,20 @@
                         $('#datepicker-from').datepicker('clearDates');
                         $('#datepicker-to').datepicker('clearDates');
                         $(".datepicker-button").addClass("d-none");
+                        $.ajax({
+                            type: "POST",
+                            url: "bilansBackend.php",
+                            data: $("#dates").serialize(),
+                                success: function(data) {
+                                    incomesObj = JSON.parse(data.split("]")[0]+']');
+                                    expensesObj = JSON.parse(data.split("]")[1]+']');
+                                    updateFinancesInAccordion(incomesObj,"#incomes-table");
+                                    updateFinancesInAccordion(expensesObj,"#expenses-table");
+                                    calculateBalance();
+                                    initChart();     
+                                }
+                        });                   
+                        return false;
                         break;
                     case '1':
                         disableDateinput("from");
@@ -160,7 +128,20 @@
                         $('#datepicker-from').datepicker('clearDates');
                         $('#datepicker-to').datepicker('clearDates');
                         $(".datepicker-button").addClass("d-none");
-                        $("#dates").submit();
+                        $.ajax({
+                            type: "POST",
+                            url: "bilansBackend.php",
+                            data: $("#dates").serialize(),
+                                success: function(data) {
+                                    incomesObj = JSON.parse(data.split("]")[0]+']');
+                                    expensesObj = JSON.parse(data.split("]")[1]+']');
+                                    updateFinancesInAccordion(incomesObj,"#incomes-table");
+                                    updateFinancesInAccordion(expensesObj,"#expenses-table");
+                                    calculateBalance();
+                                    initChart();
+                                }
+                        });
+                        return false;
                         break;
                     case '2':
                         disableDateinput("from");
@@ -170,6 +151,20 @@
                         $('#datepicker-from').datepicker('clearDates');
                         $('#datepicker-to').datepicker('clearDates');
                         $(".datepicker-button").addClass("d-none");
+                        $.ajax({
+                            type: "POST",
+                            url: "bilansBackend.php",
+                            data: $("#dates").serialize(),
+                                success: function(data) {
+                                    incomesObj = JSON.parse(data.split("]")[0]+']');
+                                    expensesObj = JSON.parse(data.split("]")[1]+']');
+                                    updateFinancesInAccordion(incomesObj,"#incomes-table");
+                                    updateFinancesInAccordion(expensesObj,"#expenses-table");
+                                    calculateBalance();
+                                    initChart();     
+                                }
+                        });
+                        return false;
                         break;
                     case '3':
                         enableDateInput("from");
@@ -180,7 +175,7 @@
                         modal.show();
                         break;
                 }
-            });
+            });            
 
             var finalStartDate;
             var finalEndDate;
@@ -220,22 +215,68 @@
             $("#datepicker-save").on("click", () => {
                 $("#from").val(finalStartDate);
                 $("#to").val(finalEndDate);
-                modal.hide();
+                $.ajax({
+                    type: "POST",
+                    url: "bilansBackend.php",
+                    data: $("#dates").serialize(),
+                        success: function(data) {
+                            incomesObj = JSON.parse(data.split("]")[0]+']');
+                            expensesObj = JSON.parse(data.split("]")[1]+']');
+                            updateFinancesInAccordion(incomesObj,"#incomes-table");
+                            updateFinancesInAccordion(expensesObj,"#expenses-table");
+                            calculateBalance();
+                            initChart();     
+                        }
+                });
+                modal.hide();                
+                return false;
             });
 
             $(".datepicker-button").on('click', () => {
                 finalStartDate = $("#from").val();
-                //$("#datepicker-from").datepicker('clearDates');
                 $("#datepicker-from").datepicker('setDate', finalStartDate);
                 finalEndDate = $("#to").val();
-                //$("#datepicker-to").datepicker('clearDates');
-                $("#datepicker-to").datepicker('setDate', finalEndDate);
+                $("#datepicker-to").datepicker('setDate', finalEndDate);              
             });
-
+            
         });
 
         var enableDateInput = (inputId) => $(`#${inputId}`).removeClass('disabled-input');
-        var disableDateinput = (inputId) => $(`#${inputId}`).addClass('disabled-input');
+        var disableDateinput = (inputId) => $(`#${inputId}`).addClass('disabled-input');   
+
+        function calculateBalance() {
+            incomesTotal = incomesObj.reduce((total, current) => total + parseFloat(current['amount']),0);
+            expensesTotal = expensesObj.reduce((total, current) => total + parseFloat(current['amount']),0);
+            balanceFinal = incomesTotal - expensesTotal;            
+            $('.incomes-total').text((incomesTotal + "zł").replace('.',','));
+            $('.expenses-total').text((expensesTotal + "zł").replace('.',','));
+            $('.balance-final').text((balanceFinal + "zł").replace('.',','));
+            if (balanceFinal >= 0) {
+                $('.balance-message').text("Gratulacje. Świetnie zarządzasz finansami!");
+                $('.balance-message').removeClass('text-invalid');
+            } else {
+                $('.balance-message').text("Uważaj, wpadasz w długi!");
+                $('.balance-message').addClass('text-invalid');
+            }
+        }
+
+        function updateFinancesInAccordion (financesObj, tableId) {            
+            $(tableId).empty();
+            $(tableId).removeClass();
+            financesObj.forEach((row) => {
+                $(tableId).append(
+                    `<tr><td>${row['category']}</td><td>${row['amount']}</td></tr>`
+                );
+            });
+            if (jQuery.isEmptyObject(financesObj)) {
+                $(tableId).append(
+                    ($(tableId).parent().parent().parent().prev().attr('id') == 'incomes') ?
+                    `<tr><td colspan="2">Nie posiadasz żadnych przychodów</td></tr>` :
+                    `<tr><td colspan="2">Nie posiadasz żadnych wydatków</td></tr>` 
+                );
+                $(tableId).addClass('text-invalid').addClass('text-center');
+            }
+        }
 
     </script>
 
@@ -415,7 +456,8 @@
     </nav>
 
     <main class="d-flex flex-column">
-        <form class="pt-2 pt-sm-3 pt-md-3 ps-lg-5 pt-lg-5 mx-auto mx-lg-0" id="dates">
+        <form class="pt-2 pt-sm-3 pt-md-3 ps-lg-5 pt-lg-5 mx-auto mx-lg-0" id="dates"
+        action="bilansBackend.php" method="post">
             <div class="d-flex align-items-md-center flex-column flex-md-row fs-5 p-0">
                 <div class="d-flex flex-column flex-sm-row align-items-center mx-auto mx-lg-0">
                     <label for="period" class="text-nowrap m-0 me-sm-2">Okres bilansu:</label>
@@ -438,9 +480,9 @@
                 </div>
                 <div class="d-flex align-items-center pt-2 pb-1 pt-md-0 pb-sm-0 mx-auto mx-md-0">
                     <label for="from" class="ms-md-2 me-2">od:</label>
-                    <input type="text" class="form-control disabled-input w-108px me-2" id="from">
+                    <input type="text" class="form-control disabled-input w-108px me-2" id="from" name="from" value="">
                     <label for="to" class="me-2">do:</label>
-                    <input type="text" class="form-control disabled-input w-108px" id="to">
+                    <input type="text" class="form-control disabled-input w-108px" id="to" name="to">
                     <div class="d-none d-sm-block">
                         <button type="button" data-bs-toggle="modal" data-bs-target="#pick-date-period"
                             class="datepicker-button d-none btn btn-primary ms-2 py-auto px-2 d-flex">
@@ -450,6 +492,8 @@
                         </button>
                     </div>
                 </div>
+                <!-- hidden sumbit button for AJAX function -->
+                <button type="submit" class="d-none" id="form-submit"></button>
             </div>
         </form>
         <div class="d-flex">
@@ -474,15 +518,7 @@
                                     </tr>
                                 </thead>
                                 
-                                <tbody>
-                                    <?php
-                                        foreach ($sumOfEachIncomeCategory as $row) {
-                                            echo '<tr>';
-                                            echo    '<td>'.$row['category'].'</td>';
-                                            echo    '<td>'.str_replace('.',',',$row['amount']).'zł</td>';
-                                            echo '</tr>';
-                                        }
-                                    ?>
+                                <tbody id="incomes-table">                                    
                                 </tbody>
 
                             </table>
@@ -507,15 +543,7 @@
                                         <th scope="col">Suma:</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php
-                                        foreach ($sumOfEachExpenseCategory as $row) {
-                                            echo '<tr>';
-                                            echo    '<td>'.$row['category'].'</td>';
-                                            echo    '<td>'.str_replace('.',',',$row['amount']).'zł</td>';
-                                            echo '</tr>';
-                                        }
-                                    ?>
+                                <tbody id="expenses-table">                                    
                                 </tbody>
                             </table>
                         </div>
@@ -550,7 +578,7 @@
                                             <span class="ps-3">Przychody:</span>
                                         </div>
                                         <div class="col-6 summary-border-start summary-border-bottom text-center">
-                                            <span>8000zł</span>
+                                            <span class="incomes-total"></span>
                                         </div>
                                     </div>
                                     <div class="d-flex p-0 justify-content-center">
@@ -558,7 +586,7 @@
                                             <span class="ps-3">Wydatki:</span>
                                         </div>
                                         <div class="col-6 summary-border-start summary-border-bottom text-center ">
-                                            <span>5000zł</span>
+                                            <span class="expenses-total"></span>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-center">
@@ -566,12 +594,12 @@
                                             <span class="ps-3">Bilans:</span>
                                         </div>
                                         <div class="col-6 summary-border-start text-center">
-                                            <span>3000zł</span>
+                                            <span class="balance-final"></span>
                                         </div>
                                     </div>
-                                    <div class="balance-message d-flex justify-content-center pt-2">
+                                    <div class="d-flex justify-content-center pt-2">
                                         <span class="text-center fst-italic">
-                                            <strong>Gratulacje. Świetnie zarządzasz finansami!</strong>
+                                            <strong class="balance-message"></strong>
                                         </span>
                                     </div>
                                 </div>
@@ -608,7 +636,7 @@
                                 <div class="col-md-5 col-xl-3
                                 p-0 py-1
                                 summary-border-start summary-border-bottom text-center">
-                                    <span>8000zł</span>
+                                    <span class="incomes-total"></span>
                                 </div>
                             </div>
                             <div class="d-flex p-0 justify-content-center mb-auto">
@@ -619,7 +647,7 @@
                                 <div class="col-md-5 col-xl-3
                                  p-0 pt-1
                                  summary-border-start text-center ">
-                                    <span>5000zł</span>
+                                    <span class="expenses-total"></span>
                                 </div>
                             </div>
                         </div>
@@ -627,12 +655,12 @@
                         px-md-2 ps-md-0">
                             <div class="d-flex p-0 mt-auto justify-content-center">
                                 <div class="col-6 text-end pb-1"><span>Bilans:</span></div>
-                                <div class="col-6 ms-2 pb-1"><span>3000zł</span></div>
+                                <div class="col-6 ms-2 pb-1"><span class="balance-final"></span></div>
                             </div>
-                            <div class="balance-message d-flex mb-auto justify-content-center">
+                            <div class="d-flex mb-auto justify-content-center">
                                 <span class="summary-border-top text-center
                                 px-2 pt-1">
-                                    <strong>Gratulacje. Świetnie zarządzasz finansami!</strong>
+                                    <strong class="balance-message"></strong>
                                 </span>
                             </div>
                         </div>
@@ -682,12 +710,12 @@
     });
 
     $(function () {
-        /*var dateInputFormatingFrom = new Cleave('#from', {
+        var dateInputFormatingFrom = new Cleave('#from', {
             date: true,
             delimiter: '.',
             numeralDecimalMark: ',',
             datePattern: ['d', 'm', 'Y']
-        });*/
+        });
 
         var dateInputFormatingTo = new Cleave('#to', {
             date: true,
@@ -708,16 +736,13 @@
                 { label: 'Suma', type: 'number' },
                 { type: 'string', role: 'tooltip' }
             ],
-            <?php
-                foreach($sumOfEachExpenseCategory as $dataRow) {
-                    echo
-                        '[\''.$dataRow['category'].'\', '.
-                        $dataRow['amount'].
-                        ', \'zł\'],';
-                }
-            ?>
         ]);
-        data.addColumn({ type: 'string', role: 'tooltip' });
+        
+        expensesObj.forEach((row) => {
+            data.addRows([[row['category'],parseFloat(row['amount']),'zł']]);
+        });        
+
+        data.addColumn({ type: 'string', role: 'tooltip' }); 
 
         customizeTooltips(data);
 
@@ -759,13 +784,27 @@
     }
 
     function drawChart(data, options) {
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data, options);
+        if (data.getNumberOfRows() == 0) {
+            document.getElementById('piechart').classList.add('text-invalid','fs-3','d-flex','mx-auto','align-items-center','text-center');
+            document.getElementById('piechart').innerHTML = "Nie posiadasz wydatków w wybranym okresie";
+            
+        } else {
+            document.getElementById('piechart').classList.remove('text-invalid','fs-3','d-flex','mx-auto','align-items-center','text-center');
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            chart.draw(data, options);
+        }        
     }
 
     function drawChartAccordion(data, options) {
-        var chartAccordion = new google.visualization.PieChart(document.getElementById('piechart-accordion'));
-        chartAccordion.draw(data, options);
+        if (data.getNumberOfRows() == 0) {
+            document.getElementById('piechart-accordion').classList.add('text-invalid','text-center','fs-4','align-items-center','d-flex','justify-content-center');
+            document.getElementById('piechart-accordion').innerHTML = "Nie posiadasz wydatków w wybranym okresie";
+            
+        } else {
+            document.getElementById('piechart-accordion').classList.remove('text-invalid','fs-3','d-flex','mx-auto','align-items-center','text-center');
+            var chartAccordion = new google.visualization.PieChart(document.getElementById('piechart-accordion'));
+            chartAccordion.draw(data, options);
+        }
     }
 
     var resizeContentDivs = () => {

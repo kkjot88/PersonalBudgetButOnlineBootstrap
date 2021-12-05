@@ -419,7 +419,11 @@
         success ? successModal.show() : successModal.hide();
 
         var modal = new bootstrap.Modal($('#pick-date'));
-        var today = new Date().toLocaleDateString('pl-PL');
+        var today = new Date().toLocaleDateString('pl-PL', {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
 
         $('#date').val(today);
 
@@ -443,13 +447,13 @@
             numeralDecimalMark: ',',
             numeralThousandsGroupStyle: 'thousand'
         });
-        /*
+        
         var dateInputFormating = new Cleave('#date', {
             date: true,
             delimiter: '.',
             numeralDecimalMark: ',',
             datePattern: ['d', 'm', 'Y']
-        });*/
+        });
     });
 
 </script>
